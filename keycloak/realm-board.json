@@ -1,0 +1,67 @@
+{
+  "realm": "board",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "sslRequired": "external",
+  "roles": {
+    "realm": [
+      { "name": "user", "description": "Board user" },
+      { "name": "admin", "description": "Board admin" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "board-spa",
+      "name": "Board SPA",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "https://board.bettercodelab.com/*",
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "https://board.bettercodelab.com",
+        "http://localhost:5173",
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://board.bettercodelab.com/*##http://localhost:5173/*",
+        "use.refresh.tokens": "true"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "User",
+      "email": "demo@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    }
+  ]
+}

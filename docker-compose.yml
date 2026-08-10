@@ -1,0 +1,103 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: board
+      POSTGRES_USER: board
+      POSTGRES_PASSWORD: board
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U board -d board"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    entrypoint: ["/bin/bash", "/opt/keycloak/entrypoint-custom.sh"]
+    command: []
+    environment:
+      KC_HOSTNAME: auth.bettercodelab.com
+      KC_HOSTNAME_URL: https://auth.bettercodelab.com
+      KC_HOSTNAME_STRICT: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      - ./keycloak/realm-board.json:/opt/keycloak/data/import/realm-board.json:ro
+      - ./keycloak/board-user-profile.json:/opt/keycloak/config/board-user-profile.json:ro
+      - ./keycloak/entrypoint.sh:/opt/keycloak/entrypoint-custom.sh:ro
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  django:
+    build: ./backend
+    environment:
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: django,localhost,127.0.0.1,board.bettercodelab.com
+      DJANGO_SECRET_KEY: dev-secret-key
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: board
+      POSTGRES_USER: board
+      POSTGRES_PASSWORD: board
+      CORS_ALLOWED_ORIGINS: https://board.bettercodelab.com
+      KEYCLOAK_ISSUER: https://auth.bettercodelab.com/realms/board
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/board/protocol/openid-connect/certs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8000"
+
+  kong:
+    build: ./kong
+    environment:
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/board/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER: https://auth.bettercodelab.com/realms/board
+      KONG_DECLARATIVE_CONFIG: /tmp/kong.yml
+      KONG_ADMIN_LISTEN: 127.0.0.1:8002
+    expose:
+      - "8000"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      django:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    expose:
+      - "5173"
+    environment:
+      VITE_KEYCLOAK_URL: https://auth.bettercodelab.com
+      VITE_KEYCLOAK_REALM: board
+      VITE_KEYCLOAK_CLIENT_ID: board-spa
+      VITE_API_BASE_URL: https://board.bettercodelab.com/api
+    depends_on:
+      - kong
+      - keycloak
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - keycloak
+      - kong
+
+volumes:
+  pgdata:
