@@ -1,0 +1,105 @@
+{
+  "common": {
+    "brand": "of.me",
+    "loading": "Loading",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "searching": "Searching",
+    "adding": "Adding…",
+    "saveFailed": "Could not save",
+    "addFailed": "Could not add",
+    "loginRequired": "Please sign in to continue.",
+    "loginToStart": "Sign in to get started.",
+    "open": "Open →",
+    "comingSoon": "Coming soon",
+    "pageShort": "p. {{page}}",
+    "eventCount": "{{count}} events"
+  },
+  "language": {
+    "label": "Language",
+    "ko": "한국어",
+    "en": "English"
+  },
+  "layout": {
+    "booklogNav": "Book log",
+    "library": "Library",
+    "addBook": "Add book",
+    "activityLog": "Activity log",
+    "logout": "Sign out",
+    "login": "Sign in"
+  },
+  "home": {
+    "lead": "Record everyday life—a little more of me.",
+    "startGoogle": "Get started — Sign in with Google",
+    "booklogTitle": "Book log",
+    "booklogDesc": "Track books you've read and quotes worth keeping.",
+    "hubNote": "More logs will be added beyond the book log."
+  },
+  "bookList": {
+    "guestTitle": "Books you've read, lines worth keeping",
+    "guestLead": "Build your library and note the passages that stay with you.",
+    "breadcrumb": "Book log",
+    "title": "My library",
+    "bookCount_one": "{{count}} book",
+    "bookCount_other": "{{count}} books",
+    "finished": "Finished",
+    "pagesRead": "p. {{read}} / {{total}}",
+    "pagesTotal": "{{total}} pages total",
+    "empty": "No books in your library yet.",
+    "searchBooks": "Search for books"
+  },
+  "bookDetail": {
+    "confirmDeleteBook": "Remove \"{{title}}\" from your library?",
+    "confirmDeleteQuote": "Delete this quote note?",
+    "backToLibrary": "← Library",
+    "removeFromLibrary": "Remove from library",
+    "completePrompt": "Sum up this book in one sentence to earn the finished badge.",
+    "completePlaceholder": "Describe this book in one sentence",
+    "completeBadge": "Get finished badge",
+    "newNote": "New note",
+    "quotePlaceholder": "A passage that stayed with you",
+    "memoPlaceholder": "Memo (optional)",
+    "pagePlaceholder": "Page",
+    "noQuotes": "No saved quotes yet.",
+    "peerQuotesTitle": "Notes from other readers",
+    "noPeerQuotes": "No notes from other readers yet.",
+    "peerBooksTitle": "Books read by people who read this one",
+    "noPeerBooks": "No recommendations yet.",
+    "readerCount_one": "{{count}} reader",
+    "readerCount_other": "{{count}} readers",
+    "addToLibrary": "Add to library"
+  },
+  "bookSearch": {
+    "title": "Find a book",
+    "subtitle": "Search Aladin catalog",
+    "loginToSearch": "Sign in to search.",
+    "placeholder": "Search by title or author",
+    "minChars": "Enter at least two characters.",
+    "noResults": "No results found.",
+    "backToLibrary": "← Back to library"
+  },
+  "history": {
+    "loginRequired": "Sign in to view your activity log.",
+    "title": "Activity log",
+    "subtitle": "See when you added books and notes on the calendar",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "monthTitle": "{{month}}/{{year}}",
+    "calendarLabel": "{{month}}/{{year}}",
+    "selectDate": "Select a date",
+    "noEvents": "Nothing recorded on this date.",
+    "eventBook": "Book",
+    "eventQuote": "Note",
+    "backHome": "← of.me",
+    "weekdays": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
+  }
+}

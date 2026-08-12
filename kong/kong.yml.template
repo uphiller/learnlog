@@ -21,6 +21,7 @@ services:
           - name: cors
             config:
               origins:
+                - https://log.bettercodelab.com
                 - https://board.bettercodelab.com
                 - http://localhost:5173
               methods:
@@ -40,6 +41,7 @@ services:
           - name: cors
             config:
               origins:
+                - https://log.bettercodelab.com
                 - https://board.bettercodelab.com
                 - http://localhost:5173
               methods:

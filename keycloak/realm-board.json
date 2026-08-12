@@ -24,17 +24,19 @@
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
       "redirectUris": [
+        "https://log.bettercodelab.com/*",
         "https://board.bettercodelab.com/*",
         "http://localhost:5173/*"
       ],
       "webOrigins": [
+        "https://log.bettercodelab.com",
         "https://board.bettercodelab.com",
         "http://localhost:5173",
         "+"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "https://board.bettercodelab.com/*##http://localhost:5173/*",
+        "post.logout.redirect.uris": "https://log.bettercodelab.com/*##https://board.bettercodelab.com/*##http://localhost:5173/*",
         "use.refresh.tokens": "true"
       },
       "defaultClientScopes": [

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import keycloak from "./keycloak";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 type AuthContextValue = {
   ready: boolean;
@@ -90,7 +91,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   if (!ready) {
-    return <p style={{ padding: 24 }}>Keycloak 로그인 준비 중…</p>;
+    return (
+      <div
+        className="m-auth-loading"
+        role="status"
+        aria-live="polite"
+        aria-label="Keycloak 로그인 준비 중"
+      >
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

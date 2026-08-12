@@ -1,6 +1,7 @@
-import { FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, type PostDetail } from "../api";
+import { LoadingState } from "../LoadingState";
 import keycloak from "../keycloak";
 
 export function PostDetailPage() {
@@ -28,7 +29,7 @@ export function PostDetailPage() {
   }
 
   if (error) return <p className="error">{error}</p>;
-  if (!post) return <p>불러오는 중…</p>;
+  if (!post) return <LoadingState />;
 
   return (
     <article className="post-detail">

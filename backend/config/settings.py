@@ -28,8 +28,11 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "apps.users",
     "apps.board",
+    "apps.books",
     "apps.core",
 ]
+
+ALADIN_TTB_KEY = os.environ.get("ALADIN_TTB_KEY", "")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -106,7 +109,7 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = os.environ.get(
     "CORS_ALLOWED_ORIGINS",
-    "https://board.bettercodelab.com,http://localhost:5173,http://localhost:8000",
+    "https://log.bettercodelab.com,https://board.bettercodelab.com,http://localhost:5173,http://localhost:8000",
 ).split(",")
 CORS_ALLOW_CREDENTIALS = True
 

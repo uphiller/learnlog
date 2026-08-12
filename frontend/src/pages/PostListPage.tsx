@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext";
+import { LoadingState } from "../LoadingState";
 import { api, type PostListItem } from "../api";
 
 export function PostListPage() {
@@ -43,7 +44,7 @@ export function PostListPage() {
       {!authenticated && !loading && (
         <p>로그인하면 게시글을 볼 수 있습니다.</p>
       )}
-      {authenticated && loading && <p>불러오는 중…</p>}
+      {authenticated && loading && <LoadingState />}
       {error && <p className="error">{error}</p>}
       <ul className="post-list">
         {posts.map((post) => (

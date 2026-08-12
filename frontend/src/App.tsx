@@ -1,9 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./AuthContext";
 import { Layout } from "./Layout";
-import { PostListPage } from "./pages/PostListPage";
-import { PostDetailPage, PostFormPage } from "./pages/PostPages";
-import "./App.css";
+import { BookDetailPage } from "./pages/BookDetailPage";
+import { BookListPage } from "./pages/BookListPage";
+import { BookSearchPage } from "./pages/BookSearchPage";
+import { HistoryPage } from "./pages/HistoryPage";
+import { OfMeHomePage } from "./pages/OfMeHomePage";
 
 export default function App() {
   return (
@@ -11,10 +13,11 @@ export default function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/" element={<PostListPage />} />
-            <Route path="/posts/new" element={<PostFormPage mode="create" />} />
-            <Route path="/posts/:id" element={<PostDetailPage />} />
-            <Route path="/posts/:id/edit" element={<PostFormPage mode="edit" />} />
+            <Route path="/" element={<OfMeHomePage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/book" element={<BookListPage />} />
+            <Route path="/book/search" element={<BookSearchPage />} />
+            <Route path="/book/:id" element={<BookDetailPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BOARD_ORIGIN="https://board.bettercodelab.com"
+SPA_ORIGIN="https://log.bettercodelab.com"
 
 wait_for_port() {
   for _ in $(seq 1 90); do
@@ -33,10 +33,10 @@ configure_realms() {
   CLIENT_UUID="$(/opt/keycloak/bin/kcadm.sh get clients -r board -q clientId=board-spa --fields id 2>/dev/null | grep -oE '[0-9a-f-]{36}' | head -1 || true)"
   if [[ -n "${CLIENT_UUID}" ]]; then
     /opt/keycloak/bin/kcadm.sh update "clients/${CLIENT_UUID}" -r board \
-      -s "attributes.post.logout.redirect.uris=${BOARD_ORIGIN}/*##http://localhost:5173/*" \
+      -s "attributes.post.logout.redirect.uris=${SPA_ORIGIN}/*##https://board.bettercodelab.com/*##http://localhost:5173/*" \
       -s 'attributes.use.refresh.tokens=true' \
       -s 'attributes.pkce.code.challenge.method=S256' || echo "WARN: board-spa client update failed (realm import may suffice)."
-    echo "Updated board-spa client for ${BOARD_ORIGIN}."
+    echo "Updated board-spa client for ${SPA_ORIGIN}."
   fi
 
   echo "Set sslRequired=NONE for master and board realms (HTTP behind TLS proxy)."

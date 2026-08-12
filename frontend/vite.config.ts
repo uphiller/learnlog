@@ -8,4 +8,9 @@ export default defineConfig({
     port: 5173,
     allowedHosts: [".bettercodelab.com", "localhost"],
   },
+  preview: {
+    host: "0.0.0.0",
+    port: 5173,
+    allowedHosts: [".bettercodelab.com", "localhost"],
+  },
 });

@@ -1,12 +1,14 @@
-# Board Platform (DRF + Keycloak + Kong + React)
+# of.me Platform (DRF + Keycloak + Kong + React)
 
 ## 공개 URL
 
 | 사용자 (Cloudflare HTTPS) | 서비스 |
 |---------------------------|--------|
-| https://board.bettercodelab.com | React SPA |
+| https://log.bettercodelab.com | React SPA (of.me hub) |
 | https://auth.bettercodelab.com | Keycloak |
-| https://board.bettercodelab.com/api | Kong → Django |
+| https://log.bettercodelab.com/api | Kong → Django |
+
+`board.bettercodelab.com`은 nginx에서 동일 SPA/API로 호환 라우팅(전환용).
 
 ## Nginx + Cloudflare
 
@@ -15,11 +17,11 @@
 ```text
 브라우저 --HTTPS 443--> Cloudflare --HTTP 80--> nginx --+
   auth.bettercodelab.com  → keycloak:8080
-  board.bettercodelab.com → frontend:5173
-  board.bettercodelab.com/api → kong:8000
+  log.bettercodelab.com   → frontend:5173
+  log.bettercodelab.com/api → kong:8000
 ```
 
-Cloudflare DNS: `board`, `auth` A 레코드 → 서버 IP, **프록시(주황 구름) ON**.
+Cloudflare DNS: `log`, `auth` A 레코드 → 서버 IP, **프록시(주황 구름) ON**.
 
 SSL/TLS 모드: **Flexible** (원본 HTTP 80). Cloudflare가 `X-Forwarded-Proto: https`를 넘깁니다 (`KC_PROXY=edge`).
 
