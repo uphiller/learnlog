@@ -27,6 +27,7 @@
     "libraryTab": "내 서재",
     "readingGroupsTab": "독서모임",
     "addBook": "책 추가",
+    "createGroup": "모임 개설",
     "activityLog": "활동 로그",
     "logout": "로그아웃",
     "login": "로그인",
@@ -59,7 +60,10 @@
     "guestLead": "같은 책을 읽는 사람들과 모임을 만들고 기록을 나눕니다.",
     "title": "독서모임",
     "subtitle": "참여 중인 독서모임",
-    "empty": "아직 참여 중인 독서모임이 없습니다."
+    "empty": "아직 참여 중인 독서모임이 없습니다.",
+    "createTitle": "독서모임 개설",
+    "createSubtitle": "함께 읽을 모임을 만듭니다",
+    "backToGroups": "← 독서모임"
   },
   "bookDetail": {
     "confirmDeleteBook": "「{{title}}」을(를) 서재에서 삭제할까요?",
