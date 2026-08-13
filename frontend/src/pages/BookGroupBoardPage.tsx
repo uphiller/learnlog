@@ -61,9 +61,6 @@ export function BookGroupBoardPage() {
       {!loading && posts.length === 0 && !error && (
         <div className="m-empty">
           <p className="m-empty__text">{t("bookGroupDetail.boardEmpty")}</p>
-          <Link to={`/book/groups/${slug}/board/new`} className="m-btn m-btn--write">
-            {t("bookGroupDetail.newPost")}
-          </Link>
         </div>
       )}
     </section>

@@ -24,7 +24,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     (groupDetail.my_role === "owner" || groupDetail.my_role === "admin");
   const inGroupBooksFlow =
     canManageGroupBooks && /^\/book\/groups\/[^/]+\/books\/?$/.test(pathname);
-  const inGroupBoardFlow = /^\/book\/groups\/[^/]+\/board\/?$/.test(pathname);
+  const groupBoardListMatch = pathname.match(/^\/book\/groups\/([^/]+)\/board\/?$/);
+  const groupBoardSlug = groupBoardListMatch?.[1];
 
   return (
     <div className="layout">
@@ -55,9 +56,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     {t("layout.addGroupBook")}
                   </Link>
                 )}
-                {inGroupBoardFlow && groupDetail && (
+                {groupBoardSlug && (
                   <Link
-                    to={`/book/groups/${groupDetail.slug}/board/new`}
+                    to={`/book/groups/${groupBoardSlug}/board/new`}
                     className="m-btn m-btn--write"
                   >
                     {t("layout.writePost")}
