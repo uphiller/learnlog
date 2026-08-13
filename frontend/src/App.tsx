@@ -9,6 +9,7 @@ import { BookGroupBooksPage } from "./pages/BookGroupBooksPage";
 import { BookGroupCreatePage } from "./pages/BookGroupCreatePage";
 import { BookGroupDetailLayout } from "./pages/BookGroupDetailLayout";
 import { BookGroupMembersPage } from "./pages/BookGroupMembersPage";
+import { BookGroupPostCreatePage } from "./pages/BookGroupPostCreatePage";
 import { BookGroupPostPage } from "./pages/BookGroupPostPage";
 import { BookGroupsPage } from "./pages/BookGroupsPage";
 import { BookListPage } from "./pages/BookListPage";
@@ -28,6 +29,7 @@ export default function App() {
               <Route path="/book" element={<BookListPage />} />
               <Route path="/book/groups/new" element={<BookGroupCreatePage />} />
               <Route path="/book/groups/:slug/books/add" element={<BookGroupBookAddPage />} />
+              <Route path="/book/groups/:slug/board/new" element={<BookGroupPostCreatePage />} />
               <Route path="/book/groups/:slug" element={<BookGroupDetailLayout />}>
                 <Route index element={<Navigate to="books" replace />} />
                 <Route path="books" element={<BookGroupBooksPage />} />

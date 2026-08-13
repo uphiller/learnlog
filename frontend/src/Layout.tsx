@@ -24,6 +24,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     (groupDetail.my_role === "owner" || groupDetail.my_role === "admin");
   const inGroupBooksFlow =
     canManageGroupBooks && /^\/book\/groups\/[^/]+\/books\/?$/.test(pathname);
+  const inGroupBoardFlow = /^\/book\/groups\/[^/]+\/board\/?$/.test(pathname);
 
   return (
     <div className="layout">
@@ -52,6 +53,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     className="m-btn m-btn--write"
                   >
                     {t("layout.addGroupBook")}
+                  </Link>
+                )}
+                {inGroupBoardFlow && groupDetail && (
+                  <Link
+                    to={`/book/groups/${groupDetail.slug}/board/new`}
+                    className="m-btn m-btn--write"
+                  >
+                    {t("layout.writePost")}
                   </Link>
                 )}
                 <span className="m-avatar" title={username ?? undefined}>
