@@ -1,6 +1,7 @@
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "./AuthContext";
+import { BooklogTabs } from "./BooklogTabs";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 
 function userInitial(name: string | undefined): string {
@@ -10,9 +11,11 @@ function userInitial(name: string | undefined): string {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
-  const { username, login, logout, authenticated } = useAuth();
+  const { username, loginWithGoogle, loginWithKakao, logout, authenticated } = useAuth();
   const { pathname } = useLocation();
-  const inBooklog = pathname === "/book" || pathname.startsWith("/book/");
+  const showBooklogTabs = pathname === "/book" || pathname === "/book/groups";
+  const inLibraryFlow =
+    pathname === "/book" || pathname === "/book/search" || /^\/book\/\d+$/.test(pathname);
 
   return (
     <div className="layout">
@@ -25,14 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <LanguageSwitcher />
             {authenticated ? (
               <>
-                {inBooklog && (
-                  <nav className="m-nav" aria-label={t("layout.booklogNav")}>
-                    <NavLink to="/book" end className="m-nav__link">
-                      {t("layout.library")}
-                    </NavLink>
-                  </nav>
-                )}
-                {inBooklog && (
+                {inLibraryFlow && (
                   <Link to="/book/search" className="m-btn m-btn--write">
                     {t("layout.addBook")}
                   </Link>
@@ -73,13 +69,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </button>
               </>
             ) : (
-              <button type="button" className="m-btn m-btn--outline" onClick={login}>
-                {t("layout.login")}
-              </button>
+              <div className="m-login-actions m-login-actions--header">
+                <button
+                  type="button"
+                  className="m-btn m-btn--outline m-btn--sm"
+                  onClick={loginWithGoogle}
+                >
+                  {t("layout.loginGoogle")}
+                </button>
+                <button
+                  type="button"
+                  className="m-btn m-btn--kakao m-btn--sm"
+                  onClick={loginWithKakao}
+                >
+                  {t("layout.loginKakao")}
+                </button>
+              </div>
             )}
           </div>
         </div>
       </header>
+      {showBooklogTabs && <BooklogTabs />}
       <main className="m-main">{children}</main>
     </div>
   );

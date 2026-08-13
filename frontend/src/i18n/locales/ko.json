@@ -24,14 +24,19 @@
   "layout": {
     "booklogNav": "북로그",
     "library": "서재",
+    "libraryTab": "내 서재",
+    "readingGroupsTab": "독서모임",
     "addBook": "책 추가",
     "activityLog": "활동 로그",
     "logout": "로그아웃",
-    "login": "로그인"
+    "login": "로그인",
+    "loginGoogle": "Google",
+    "loginKakao": "Kakao"
   },
   "home": {
     "lead": "좀 더 나에게 집중한 일상을 기록합니다.",
     "startGoogle": "시작하기 — Google 로그인",
+    "startKakao": "시작하기 — Kakao 로그인",
     "booklogTitle": "북로그",
     "booklogDesc": "읽은 책과 인상 깊은 문장을 기록합니다.",
     "hubNote": "북로그 외에도 앞으로 더 많은 로그가 추가될 예정입니다."
@@ -48,6 +53,13 @@
     "pagesTotal": "총 {{total}}쪽",
     "empty": "아직 등록한 책이 없습니다.",
     "searchBooks": "책 검색하기"
+  },
+  "bookGroups": {
+    "guestTitle": "함께 읽는 독서모임",
+    "guestLead": "같은 책을 읽는 사람들과 모임을 만들고 기록을 나눕니다.",
+    "title": "독서모임",
+    "subtitle": "참여 중인 독서모임",
+    "empty": "아직 참여 중인 독서모임이 없습니다."
   },
   "bookDetail": {
     "confirmDeleteBook": "「{{title}}」을(를) 서재에서 삭제할까요?",

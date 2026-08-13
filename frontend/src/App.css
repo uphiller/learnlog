@@ -172,6 +172,40 @@ a:hover {
   color: var(--m-text);
 }
 
+.m-booklog-tabs {
+  border-bottom: 1px solid var(--m-border);
+  background: var(--m-bg);
+}
+
+.m-booklog-tabs__inner {
+  max-width: var(--m-max-wide);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 4px;
+}
+
+.m-booklog-tabs__link {
+  padding: 14px 4px;
+  margin-right: 20px;
+  font-size: 0.9375rem;
+  color: var(--m-text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  text-decoration: none;
+}
+
+.m-booklog-tabs__link:hover {
+  color: var(--m-text);
+  text-decoration: none;
+}
+
+.m-booklog-tabs__link.active {
+  color: var(--m-text);
+  border-bottom-color: var(--m-text);
+  font-weight: 500;
+}
+
 .m-avatar {
   width: 32px;
   height: 32px;
@@ -500,6 +534,29 @@ a:hover {
 
 .m-hero .m-btn {
   margin-top: 8px;
+}
+
+.m-login-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.m-login-actions--header {
+  justify-content: flex-end;
+}
+
+.m-btn--kakao {
+  background: #fee500;
+  border-color: #fee500;
+  color: #191919;
+}
+
+.m-btn--kakao:hover {
+  background: #f5dc00;
+  border-color: #f5dc00;
+  color: #191919;
 }
 
 /* of.me hub */
@@ -1353,6 +1410,10 @@ a:hover {
 
 @media (max-width: 640px) {
   .m-header__inner {
+    padding: 0 16px;
+  }
+
+  .m-booklog-tabs__inner {
     padding: 0 16px;
   }
 
