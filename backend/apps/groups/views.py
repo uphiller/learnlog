@@ -1,15 +1,21 @@
 from django.db import transaction
-from django.db.models import Case, IntegerField, Value, When
+from django.db.models import Case, Count, IntegerField, Value, When
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Group, GroupContext, GroupMembership, GroupReading
+from .models import Group, GroupComment, GroupContext, GroupMembership, GroupPost, GroupReading
 from .serializers import (
+    GroupCommentSerializer,
+    GroupCommentWriteSerializer,
     GroupCreateSerializer,
     GroupListSerializer,
     GroupMemberSerializer,
+    GroupPostDetailSerializer,
+    GroupPostListSerializer,
+    GroupPostWriteSerializer,
     GroupReadingCreateSerializer,
     GroupReadingSerializer,
 )
@@ -125,4 +131,55 @@ class GroupViewSet(viewsets.ModelViewSet):
             **serializer.validated_data,
         )
         output = GroupReadingSerializer(reading)
+        return Response(output.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["get", "post"], url_path="posts")
+    def posts(self, request, slug=None):
+        group = self.get_object()
+
+        if request.method == "GET":
+            posts = (
+                group.posts.select_related("author")
+                .annotate(comment_count=Count("comments"))
+                .order_by("-created_at")
+            )
+            serializer = GroupPostListSerializer(posts, many=True)
+            return Response({"results": serializer.data})
+
+        serializer = GroupPostWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post = GroupPost.objects.create(
+            group=group,
+            author=request.user,
+            title=serializer.validated_data["title"],
+            body=serializer.validated_data["body"],
+        )
+        output = GroupPostDetailSerializer(post)
+        return Response(output.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["get"], url_path=r"posts/(?P<post_id>[^/.]+)")
+    def post_detail(self, request, slug=None, post_id=None):
+        group = self.get_object()
+        post = get_object_or_404(GroupPost, pk=post_id, group=group)
+        serializer = GroupPostDetailSerializer(post)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get", "post"], url_path=r"posts/(?P<post_id>[^/.]+)/comments")
+    def post_comments(self, request, slug=None, post_id=None):
+        group = self.get_object()
+        post = get_object_or_404(GroupPost, pk=post_id, group=group)
+
+        if request.method == "GET":
+            comments = post.comments.select_related("author").order_by("created_at")
+            serializer = GroupCommentSerializer(comments, many=True)
+            return Response({"results": serializer.data})
+
+        serializer = GroupCommentWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        comment = GroupComment.objects.create(
+            post=post,
+            author=request.user,
+            body=serializer.validated_data["body"],
+        )
+        output = GroupCommentSerializer(comment)
         return Response(output.data, status=status.HTTP_201_CREATED)

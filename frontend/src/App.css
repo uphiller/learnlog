@@ -322,6 +322,84 @@ a:hover {
   padding: 2px 8px;
 }
 
+.m-board-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-board-compose__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.m-board-row {
+  align-items: flex-start;
+}
+
+.m-board-row__preview {
+  margin: 6px 0 0;
+  font-size: 0.9375rem;
+  color: var(--m-text-secondary);
+  line-height: 1.5;
+}
+
+.m-breadcrumb--compact {
+  margin-bottom: 16px;
+}
+
+.m-board-post__title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.m-board-post__meta {
+  margin: 0 0 20px;
+  font-size: 0.8125rem;
+  color: var(--m-text-tertiary);
+}
+
+.m-board-post__body {
+  font-size: 1rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.m-board-comments__list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+}
+
+.m-board-comment {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--m-border);
+}
+
+.m-board-comment:last-child {
+  border-bottom: none;
+}
+
+.m-board-comment__meta {
+  margin: 0 0 6px;
+  font-size: 0.8125rem;
+  color: var(--m-text-tertiary);
+}
+
+.m-board-comment__body {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.m-board-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
 .m-avatar {
   width: 32px;
   height: 32px;

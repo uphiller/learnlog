@@ -196,6 +196,31 @@ export type GroupReading = {
   created_at: string;
 };
 
+export type GroupPost = {
+  id: number;
+  title: string;
+  body: string;
+  author_name: string;
+  comment_count: number;
+  created_at: string;
+};
+
+export type GroupPostDetail = {
+  id: number;
+  title: string;
+  body: string;
+  author_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GroupComment = {
+  id: number;
+  body: string;
+  author_name: string;
+  created_at: string;
+};
+
 export const api = {
   listPosts: (page = 1) => request<Paginated<PostListItem>>(`/posts/?page=${page}`),
   getPost: (id: number) => request<PostDetail>(`/posts/${id}/`),
@@ -246,5 +271,22 @@ export const api = {
     request<GroupReading>(`/groups/${slug}/books/`, {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+
+  listGroupPosts: (slug: string) =>
+    request<{ results: GroupPost[] }>(`/groups/${slug}/posts/`),
+  createGroupPost: (slug: string, data: { title: string; body: string }) =>
+    request<GroupPostDetail>(`/groups/${slug}/posts/`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getGroupPost: (slug: string, postId: number) =>
+    request<GroupPostDetail>(`/groups/${slug}/posts/${postId}/`),
+  listGroupPostComments: (slug: string, postId: number) =>
+    request<{ results: GroupComment[] }>(`/groups/${slug}/posts/${postId}/comments/`),
+  createGroupPostComment: (slug: string, postId: number, body: string) =>
+    request<GroupComment>(`/groups/${slug}/posts/${postId}/comments/`, {
+      method: "POST",
+      body: JSON.stringify({ body }),
     }),
 };

@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
-from .models import Group, GroupMembership, GroupReading
+from .models import Group, GroupComment, GroupMembership, GroupPost, GroupReading
+
+
+def user_display_name(user) -> str:
+    return user.display_name or user.email or user.keycloak_sub
 
 
 class GroupListSerializer(serializers.ModelSerializer):
@@ -79,6 +83,67 @@ class GroupReadingCreateSerializer(serializers.Serializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("title is required.")
+        return value
+
+
+class GroupPostListSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+    comment_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = GroupPost
+        fields = ("id", "title", "body", "author_name", "comment_count", "created_at")
+
+    def get_author_name(self, obj: GroupPost) -> str:
+        return user_display_name(obj.author)
+
+
+class GroupPostDetailSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupPost
+        fields = ("id", "title", "body", "author_name", "created_at", "updated_at")
+
+    def get_author_name(self, obj: GroupPost) -> str:
+        return user_display_name(obj.author)
+
+
+class GroupPostWriteSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=200)
+    body = serializers.CharField()
+
+    def validate_title(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("제목을 입력해 주세요.")
+        return value
+
+    def validate_body(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("내용을 입력해 주세요.")
+        return value
+
+
+class GroupCommentSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupComment
+        fields = ("id", "body", "author_name", "created_at")
+
+    def get_author_name(self, obj: GroupComment) -> str:
+        return user_display_name(obj.author)
+
+
+class GroupCommentWriteSerializer(serializers.Serializer):
+    body = serializers.CharField()
+
+    def validate_body(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("댓글을 입력해 주세요.")
         return value
 
 

@@ -90,7 +90,22 @@
     "addBookSubmit": "Add to group",
     "addBookFailed": "Could not add the book.",
     "addBookForbidden": "Only owners and admins can add books.",
-    "backToBooks": "← Group books"
+    "backToBooks": "← Group books",
+    "boardTab": "Board",
+    "boardEmpty": "No posts yet. Start the conversation.",
+    "newPost": "Write a post",
+    "postTitlePlaceholder": "Title",
+    "postBodyPlaceholder": "Write your post",
+    "postSubmit": "Post",
+    "postCreateFailed": "Could not create the post.",
+    "commentCount_one": "{{count}} comment",
+    "commentCount_other": "{{count}} comments",
+    "backToBoard": "← Board",
+    "commentsTitle": "Comments ({{count}})",
+    "commentsEmpty": "No comments yet.",
+    "commentPlaceholder": "Write a comment",
+    "commentSubmit": "Add comment",
+    "commentCreateFailed": "Could not add the comment."
   },
   "bookDetail": {
     "confirmDeleteBook": "Remove \"{{title}}\" from your library?",

@@ -18,6 +18,9 @@ export function GroupDetailTabs({ slug }: Props) {
         <NavLink to={`${base}/members`} className="m-booklog-tabs__link">
           {t("bookGroupDetail.membersTab")}
         </NavLink>
+        <NavLink to={`${base}/board`} className="m-booklog-tabs__link">
+          {t("bookGroupDetail.boardTab")}
+        </NavLink>
       </div>
     </nav>
   );

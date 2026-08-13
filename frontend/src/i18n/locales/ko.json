@@ -90,7 +90,22 @@
     "addBookSubmit": "모임에 추가",
     "addBookFailed": "책 등록에 실패했습니다.",
     "addBookForbidden": "방장 또는 관리자만 책을 등록할 수 있습니다.",
-    "backToBooks": "← 모임 책"
+    "backToBooks": "← 모임 책",
+    "boardTab": "게시판",
+    "boardEmpty": "아직 글이 없습니다. 첫 글을 남겨 보세요.",
+    "newPost": "글쓰기",
+    "postTitlePlaceholder": "제목",
+    "postBodyPlaceholder": "내용을 입력하세요",
+    "postSubmit": "등록",
+    "postCreateFailed": "글 등록에 실패했습니다.",
+    "commentCount_one": "댓글 {{count}}",
+    "commentCount_other": "댓글 {{count}}",
+    "backToBoard": "← 게시판",
+    "commentsTitle": "댓글 {{count}}",
+    "commentsEmpty": "아직 댓글이 없습니다.",
+    "commentPlaceholder": "댓글을 입력하세요",
+    "commentSubmit": "댓글 등록",
+    "commentCreateFailed": "댓글 등록에 실패했습니다."
   },
   "bookDetail": {
     "confirmDeleteBook": "「{{title}}」을(를) 서재에서 삭제할까요?",
