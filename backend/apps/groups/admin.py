@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Group, GroupContext, GroupMembership
+from .models import Group, GroupContext, GroupMembership, GroupReading
 
 
 @admin.register(Group)
@@ -19,3 +19,9 @@ class GroupMembershipAdmin(admin.ModelAdmin):
 @admin.register(GroupContext)
 class GroupContextAdmin(admin.ModelAdmin):
     list_display = ("group", "domain")
+
+
+@admin.register(GroupReading)
+class GroupReadingAdmin(admin.ModelAdmin):
+    list_display = ("title", "group", "set_by", "created_at")
+    search_fields = ("title", "group__name")

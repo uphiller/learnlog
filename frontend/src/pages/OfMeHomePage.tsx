@@ -6,7 +6,7 @@ const APPS = [{ id: "book", to: "/book", available: true }] as const;
 
 export function OfMeHomePage() {
   const { t } = useTranslation();
-  const { authenticated, login } = useAuth();
+  const { authenticated, loginWithGoogle, loginWithKakao } = useAuth();
 
   return (
     <div className="m-page">
@@ -14,9 +14,14 @@ export function OfMeHomePage() {
         <h1 className="m-hero__title">{t("common.brand")}</h1>
         <p className="m-hero__lead">{t("home.lead")}</p>
         {!authenticated && (
-          <button type="button" className="m-btn m-btn--write" onClick={login}>
-            {t("home.startGoogle")}
-          </button>
+          <div className="m-login-actions">
+            <button type="button" className="m-btn m-btn--write" onClick={loginWithGoogle}>
+              {t("home.startGoogle")}
+            </button>
+            <button type="button" className="m-btn m-btn--kakao" onClick={loginWithKakao}>
+              {t("home.startKakao")}
+            </button>
+          </div>
         )}
       </header>
 

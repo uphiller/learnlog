@@ -5,17 +5,25 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.books.models import Book
-from apps.books.utils import is_book_finished
-
-from .models import Group, GroupContext, GroupMembership
+from .models import Group, GroupContext, GroupMembership, GroupReading
 from .serializers import (
-    GroupBookSerializer,
     GroupCreateSerializer,
     GroupListSerializer,
     GroupMemberSerializer,
+    GroupReadingCreateSerializer,
+    GroupReadingSerializer,
 )
 from .utils import make_unique_slug
+
+
+def _active_membership(group: Group, user) -> GroupMembership | None:
+    return group.memberships.filter(user=user, status=GroupMembership.Status.ACTIVE).first()
+
+
+def _can_manage_group(membership: GroupMembership | None) -> bool:
+    if membership is None:
+        return False
+    return membership.role in (GroupMembership.Role.OWNER, GroupMembership.Role.ADMIN)
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -86,54 +94,35 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
         return Response(GroupMemberSerializer(memberships, many=True).data)
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get", "post"], url_path="books")
     def books(self, request, slug=None):
         group = self.get_object()
-        member_ids = list(
-            group.memberships.filter(status=GroupMembership.Status.ACTIVE).values_list(
-                "user_id", flat=True
-            )
-        )
-        if not member_ids:
-            return Response({"results": []})
 
-        books = (
-            Book.objects.filter(owner_id__in=member_ids)
-            .select_related("owner")
-            .prefetch_related("quotes")
-        )
+        if request.method == "GET":
+            readings = group.readings.select_related("set_by").order_by("-created_at")
+            serializer = GroupReadingSerializer(readings, many=True)
+            return Response({"results": serializer.data})
 
-        aggregated: dict[str, dict] = {}
-        for book in books:
-            if not is_book_finished(book):
-                continue
-            entry = aggregated.get(book.aladin_item_id)
-            if entry is None:
-                entry = {
-                    "aladin_item_id": book.aladin_item_id,
-                    "title": book.title,
-                    "author": book.author,
-                    "cover_url": book.cover_url,
-                    "isbn13": book.isbn13,
-                    "publisher": book.publisher,
-                    "pub_date": book.pub_date,
-                    "total_pages": book.total_pages,
-                    "readers": [],
-                }
-                aggregated[book.aladin_item_id] = entry
-            owner = book.owner
-            entry["readers"].append(
-                {
-                    "display_name": owner.display_name or owner.email or owner.keycloak_sub,
-                    "completion_sentence": book.completion_sentence,
-                }
+        membership = _active_membership(group, request.user)
+        if not _can_manage_group(membership):
+            return Response(
+                {"detail": "방장 또는 관리자만 책을 등록할 수 있습니다."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
-        results = []
-        for entry in aggregated.values():
-            entry["reader_count"] = len(entry["readers"])
-            results.append(entry)
-        results.sort(key=lambda item: (-item["reader_count"], item["title"]))
+        serializer = GroupReadingCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        aladin_item_id = serializer.validated_data["aladin_item_id"]
 
-        serializer = GroupBookSerializer(results, many=True)
-        return Response({"results": serializer.data})
+        existing = group.readings.filter(aladin_item_id=aladin_item_id).first()
+        if existing:
+            output = GroupReadingSerializer(existing)
+            return Response(output.data, status=status.HTTP_200_OK)
+
+        reading = GroupReading.objects.create(
+            group=group,
+            set_by=request.user,
+            **serializer.validated_data,
+        )
+        output = GroupReadingSerializer(reading)
+        return Response(output.data, status=status.HTTP_201_CREATED)

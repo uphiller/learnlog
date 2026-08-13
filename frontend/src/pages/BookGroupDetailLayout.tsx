@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useGroupDetail } from "../GroupDetailContext";
 import { GroupDetailTabs } from "../GroupDetailTabs";
 import { LoadingState } from "../LoadingState";
 import { api, type ReadingGroup } from "../api";
@@ -14,6 +15,7 @@ function roleLabel(role: ReadingGroup["my_role"], t: (key: string) => string): s
 export function BookGroupDetailLayout() {
   const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
+  const { setGroup: setGroupDetail } = useGroupDetail();
   const [group, setGroup] = useState<ReadingGroup | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,11 +30,16 @@ export function BookGroupDetailLayout() {
       .getReadingGroup(slug)
       .then((data) => {
         setGroup(data);
+        setGroupDetail(data);
         setError(null);
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, setGroupDetail]);
+
+  useEffect(() => {
+    return () => setGroupDetail(null);
+  }, [setGroupDetail]);
 
   if (!slug) {
     return <p className="m-error">{t("bookGroupDetail.notFound")}</p>;

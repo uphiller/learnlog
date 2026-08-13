@@ -28,6 +28,7 @@
     "readingGroupsTab": "독서모임",
     "addBook": "책 추가",
     "createGroup": "모임 개설",
+    "addGroupBook": "책 정하기",
     "activityLog": "활동 로그",
     "logout": "로그아웃",
     "login": "로그인",
@@ -79,13 +80,17 @@
   },
   "bookGroupDetail": {
     "tabsLabel": "독서모임 메뉴",
-    "booksTab": "읽은 책",
+    "booksTab": "모임 책",
     "membersTab": "멤버",
     "notFound": "독서모임을 찾을 수 없습니다.",
-    "booksEmpty": "아직 모임에서 완독한 책이 없습니다.",
+    "booksEmpty": "아직 모임에서 정한 책이 없습니다.",
     "membersEmpty": "멤버가 없습니다.",
-    "readerCount_one": "{{count}}명이 완독",
-    "readerCount_other": "{{count}}명이 완독"
+    "addedBy": "{{name}} · {{date}}",
+    "addBookTitle": "모임 책 정하기",
+    "addBookSubmit": "모임에 추가",
+    "addBookFailed": "책 등록에 실패했습니다.",
+    "addBookForbidden": "방장 또는 관리자만 책을 등록할 수 있습니다.",
+    "backToBooks": "← 모임 책"
   },
   "bookDetail": {
     "confirmDeleteBook": "「{{title}}」을(를) 서재에서 삭제할까요?",

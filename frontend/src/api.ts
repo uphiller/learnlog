@@ -182,12 +182,8 @@ export type GroupMember = {
   joined_at: string;
 };
 
-export type GroupBookReader = {
-  display_name: string;
-  completion_sentence: string;
-};
-
-export type GroupBook = {
+export type GroupReading = {
+  id: number;
   aladin_item_id: string;
   title: string;
   author: string;
@@ -196,8 +192,8 @@ export type GroupBook = {
   publisher: string;
   pub_date: string;
   total_pages: number | null;
-  reader_count: number;
-  readers: GroupBookReader[];
+  set_by_name: string;
+  created_at: string;
 };
 
 export const api = {
@@ -245,5 +241,10 @@ export const api = {
   getReadingGroup: (slug: string) => request<ReadingGroup>(`/groups/${slug}/`),
   listGroupMembers: (slug: string) => request<GroupMember[]>(`/groups/${slug}/members/`),
   listGroupBooks: (slug: string) =>
-    request<{ results: GroupBook[] }>(`/groups/${slug}/books/`),
+    request<{ results: GroupReading[] }>(`/groups/${slug}/books/`),
+  addGroupBook: (slug: string, data: BookSearchHit) =>
+    request<GroupReading>(`/groups/${slug}/books/`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 };

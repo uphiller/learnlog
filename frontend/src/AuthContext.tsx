@@ -15,13 +15,32 @@ type AuthContextValue = {
   ready: boolean;
   authenticated: boolean;
   username: string;
-  login: () => void;
+  loginWithGoogle: () => void;
+  loginWithKakao: () => void;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const redirectUri = () => `${window.location.origin}/`;
+
+function loginWithIdp(idpHint: string) {
+  void keycloak
+    .login({ redirectUri: redirectUri(), idpHint })
+    .catch(async (err) => {
+      console.error("Keycloak login failed", err);
+      try {
+        window.location.assign(
+          await keycloak.createLoginUrl({
+            redirectUri: redirectUri(),
+            idpHint,
+          }),
+        );
+      } catch (urlErr) {
+        console.error("Keycloak login URL failed", urlErr);
+      }
+    });
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -54,30 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  const login = useCallback(() => {
-    void keycloak
-      .login({ redirectUri: redirectUri(), idpHint: "google" })
-      .catch(async (err) => {
-        console.error("Keycloak login failed", err);
-        try {
-          window.location.assign(
-            await keycloak.createLoginUrl({
-              redirectUri: redirectUri(),
-              idpHint: "google",
-            }),
-          );
-        } catch (urlErr) {
-          console.error("Keycloak login URL failed", urlErr);
-        }
-      });
-  }, []);
+  const loginWithGoogle = useCallback(() => loginWithIdp("google"), []);
+  const loginWithKakao = useCallback(() => loginWithIdp("kakao"), []);
 
   const logout = useCallback(() => {
     setAuthenticated(false);
     void keycloak
       .logout({ redirectUri: redirectUri() })
-      .catch(() => login());
-  }, [login]);
+      .catch(() => loginWithGoogle());
+  }, [loginWithGoogle]);
 
   const username = authenticated
     ? keycloak.tokenParsed?.preferred_username ||
@@ -86,8 +90,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     : "";
 
   const value = useMemo(
-    () => ({ ready, authenticated, username, login, logout }),
-    [ready, authenticated, username, login, logout],
+    () => ({
+      ready,
+      authenticated,
+      username,
+      loginWithGoogle,
+      loginWithKakao,
+      logout,
+    }),
+    [ready, authenticated, username, loginWithGoogle, loginWithKakao, logout],
   );
 
   if (!ready) {

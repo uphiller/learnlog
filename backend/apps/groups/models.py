@@ -65,3 +65,33 @@ class GroupContext(models.Model):
 
     def __str__(self) -> str:
         return f"{self.group_id}:{self.domain}"
+
+
+class GroupReading(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="readings")
+    aladin_item_id = models.CharField(max_length=32)
+    title = models.CharField(max_length=500)
+    author = models.CharField(max_length=500, blank=True)
+    cover_url = models.URLField(max_length=500, blank=True)
+    isbn13 = models.CharField(max_length=13, blank=True)
+    publisher = models.CharField(max_length=200, blank=True)
+    pub_date = models.CharField(max_length=32, blank=True)
+    total_pages = models.PositiveIntegerField(null=True, blank=True)
+    set_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="group_readings_set",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["group", "aladin_item_id"],
+                name="groups_reading_group_aladin_uniq",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.title

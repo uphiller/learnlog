@@ -28,6 +28,7 @@
     "readingGroupsTab": "Reading groups",
     "addBook": "Add book",
     "createGroup": "Create group",
+    "addGroupBook": "Pick a book",
     "activityLog": "Activity log",
     "logout": "Sign out",
     "login": "Sign in",
@@ -79,13 +80,17 @@
   },
   "bookGroupDetail": {
     "tabsLabel": "Reading group menu",
-    "booksTab": "Books read",
+    "booksTab": "Group books",
     "membersTab": "Members",
     "notFound": "Reading group not found.",
-    "booksEmpty": "No finished books in this group yet.",
+    "booksEmpty": "No books picked for this group yet.",
     "membersEmpty": "No members yet.",
-    "readerCount_one": "Finished by {{count}} member",
-    "readerCount_other": "Finished by {{count}} members"
+    "addedBy": "{{name}} · {{date}}",
+    "addBookTitle": "Pick a group book",
+    "addBookSubmit": "Add to group",
+    "addBookFailed": "Could not add the book.",
+    "addBookForbidden": "Only owners and admins can add books.",
+    "backToBooks": "← Group books"
   },
   "bookDetail": {
     "confirmDeleteBook": "Remove \"{{title}}\" from your library?",

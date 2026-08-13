@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
-import { api, type GroupBook } from "../api";
+import { api, type GroupReading } from "../api";
 
 export function BookGroupBooksPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
-  const [books, setBooks] = useState<GroupBook[]>([]);
+  const [books, setBooks] = useState<GroupReading[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const dateLocale = i18n.language.startsWith("ko") ? "ko-KR" : "en-US";
 
   useEffect(() => {
     if (!slug) return;
@@ -32,13 +33,16 @@ export function BookGroupBooksPage() {
       {!loading && books.length > 0 && (
         <ul className="m-feed">
           {books.map((book) => (
-            <li key={book.aladin_item_id} className="m-feed__item">
+            <li key={book.id} className="m-feed__item">
               <div className="m-feed-row m-feed-row--static">
                 <div className="m-feed-row__body">
                   <h3 className="m-feed-row__title">{book.title}</h3>
                   {book.author && <p className="m-feed-row__meta">{book.author}</p>}
                   <p className="m-feed-row__sub">
-                    {t("bookGroupDetail.readerCount", { count: book.reader_count })}
+                    {t("bookGroupDetail.addedBy", {
+                      name: book.set_by_name,
+                      date: new Date(book.created_at).toLocaleDateString(dateLocale),
+                    })}
                   </p>
                 </div>
                 {book.cover_url ? (

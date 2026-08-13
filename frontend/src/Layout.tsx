@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "./AuthContext";
 import { BooklogTabs } from "./BooklogTabs";
+import { useGroupDetail } from "./GroupDetailContext";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 
 function userInitial(name: string | undefined): string {
@@ -12,11 +13,17 @@ function userInitial(name: string | undefined): string {
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const { username, loginWithGoogle, loginWithKakao, logout, authenticated } = useAuth();
+  const { group: groupDetail } = useGroupDetail();
   const { pathname } = useLocation();
   const showBooklogTabs = pathname === "/book" || pathname === "/book/groups";
   const inLibraryFlow =
     pathname === "/book" || pathname === "/book/search" || /^\/book\/\d+$/.test(pathname);
   const inGroupsListFlow = pathname === "/book/groups" || pathname === "/book/groups/new";
+  const canManageGroupBooks =
+    groupDetail &&
+    (groupDetail.my_role === "owner" || groupDetail.my_role === "admin");
+  const inGroupBooksFlow =
+    canManageGroupBooks && /^\/book\/groups\/[^/]+\/books\/?$/.test(pathname);
 
   return (
     <div className="layout">
@@ -37,6 +44,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 {inGroupsListFlow && (
                   <Link to="/book/groups/new" className="m-btn m-btn--write">
                     {t("layout.createGroup")}
+                  </Link>
+                )}
+                {inGroupBooksFlow && groupDetail && (
+                  <Link
+                    to={`/book/groups/${groupDetail.slug}/books/add`}
+                    className="m-btn m-btn--write"
+                  >
+                    {t("layout.addGroupBook")}
                   </Link>
                 )}
                 <span className="m-avatar" title={username ?? undefined}>

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Group, GroupMembership
+from .models import Group, GroupMembership, GroupReading
 
 
 class GroupListSerializer(serializers.ModelSerializer):
@@ -35,22 +35,51 @@ class GroupMemberSerializer(serializers.ModelSerializer):
         return user.display_name or user.email or user.keycloak_sub
 
 
-class GroupBookReaderSerializer(serializers.Serializer):
-    display_name = serializers.CharField()
-    completion_sentence = serializers.CharField()
+class GroupReadingSerializer(serializers.ModelSerializer):
+    set_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupReading
+        fields = (
+            "id",
+            "aladin_item_id",
+            "title",
+            "author",
+            "cover_url",
+            "isbn13",
+            "publisher",
+            "pub_date",
+            "total_pages",
+            "set_by_name",
+            "created_at",
+        )
+
+    def get_set_by_name(self, obj: GroupReading) -> str:
+        user = obj.set_by
+        return user.display_name or user.email or user.keycloak_sub
 
 
-class GroupBookSerializer(serializers.Serializer):
-    aladin_item_id = serializers.CharField()
-    title = serializers.CharField()
-    author = serializers.CharField()
-    cover_url = serializers.URLField()
-    isbn13 = serializers.CharField()
-    publisher = serializers.CharField()
-    pub_date = serializers.CharField()
-    total_pages = serializers.IntegerField(allow_null=True)
-    reader_count = serializers.IntegerField(min_value=1)
-    readers = GroupBookReaderSerializer(many=True)
+class GroupReadingCreateSerializer(serializers.Serializer):
+    aladin_item_id = serializers.CharField(max_length=32)
+    title = serializers.CharField(max_length=500)
+    author = serializers.CharField(max_length=500, required=False, allow_blank=True, default="")
+    cover_url = serializers.URLField(max_length=500, required=False, allow_blank=True, default="")
+    isbn13 = serializers.CharField(max_length=13, required=False, allow_blank=True, default="")
+    publisher = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")
+    pub_date = serializers.CharField(max_length=32, required=False, allow_blank=True, default="")
+    total_pages = serializers.IntegerField(required=False, allow_null=True, min_value=1)
+
+    def validate_aladin_item_id(self, value: str) -> str:
+        value = str(value).strip()
+        if not value:
+            raise serializers.ValidationError("aladin_item_id is required.")
+        return value
+
+    def validate_title(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("title is required.")
+        return value
 
 
 class GroupCreateSerializer(serializers.Serializer):
