@@ -171,14 +171,16 @@ export type ReadingGroup = {
   name: string;
   slug: string;
   my_role: "owner" | "admin" | "member" | null;
+  my_status: "active" | "pending" | null;
   member_count: number;
   created_at: string;
 };
 
 export type GroupMember = {
-  user_id: number;
+  keycloak_sub: string;
   display_name: string;
   role: "owner" | "admin" | "member";
+  status: "active" | "pending" | "banned";
   joined_at: string;
 };
 
@@ -194,6 +196,25 @@ export type GroupReading = {
   total_pages: number | null;
   set_by_name: string;
   created_at: string;
+};
+
+export type GroupMemberBookQuote = {
+  quote: string;
+  memo: string;
+  page: string;
+  created_at: string;
+};
+
+export type GroupMemberWriting = {
+  keycloak_sub: string;
+  display_name: string;
+  completion_sentence: string;
+  quotes: GroupMemberBookQuote[];
+};
+
+export type GroupReadingDetail = {
+  book: GroupReading;
+  writings: GroupMemberWriting[];
 };
 
 export type GroupPost = {
@@ -219,6 +240,11 @@ export type GroupComment = {
   body: string;
   author_name: string;
   created_at: string;
+};
+
+export type UserProfile = {
+  display_name: string;
+  email: string;
 };
 
 export const api = {
@@ -256,6 +282,13 @@ export const api = {
   getHistoryCalendar: (year: number, month: number) =>
     request<HistoryCalendarResponse>(`/history/calendar/?year=${year}&month=${month}`),
 
+  getProfile: () => request<UserProfile>("/users/me/"),
+  updateProfile: (display_name: string) =>
+    request<UserProfile>("/users/me/", {
+      method: "PATCH",
+      body: JSON.stringify({ display_name }),
+    }),
+
   listReadingGroups: (page = 1) =>
     request<Paginated<ReadingGroup>>(`/groups/?domain=book&page=${page}`),
   createReadingGroup: (name: string) =>
@@ -263,10 +296,21 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ name }),
     }),
+  requestJoinGroup: (slug: string) =>
+    request<ReadingGroup>("/groups/join/?domain=book", {
+      method: "POST",
+      body: JSON.stringify({ slug }),
+    }),
   getReadingGroup: (slug: string) => request<ReadingGroup>(`/groups/${slug}/`),
   listGroupMembers: (slug: string) => request<GroupMember[]>(`/groups/${slug}/members/`),
+  approveGroupMember: (slug: string, keycloakSub: string) =>
+    request<GroupMember>(`/groups/${slug}/members/${encodeURIComponent(keycloakSub)}/approve/`, {
+      method: "POST",
+    }),
   listGroupBooks: (slug: string) =>
     request<{ results: GroupReading[] }>(`/groups/${slug}/books/`),
+  getGroupBookDetail: (slug: string, readingId: number) =>
+    request<GroupReadingDetail>(`/groups/${slug}/books/${readingId}/`),
   addGroupBook: (slug: string, data: BookSearchHit) =>
     request<GroupReading>(`/groups/${slug}/books/`, {
       method: "POST",

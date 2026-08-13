@@ -10,32 +10,12 @@ consumers:
 __JWT_RSA_INDENTED__
 
 services:
-  - name: django
-    url: http://django:8000
+  - name: user-service
+    url: http://user-service:8000
     routes:
-      - name: health
+      - name: api-users
         paths:
-          - /api/health
-        strip_path: false
-        plugins:
-          - name: cors
-            config:
-              origins:
-                - https://log.bettercodelab.com
-                - https://board.bettercodelab.com
-                - http://localhost:5173
-              methods:
-                - GET
-                - OPTIONS
-              headers:
-                - Authorization
-                - Content-Type
-              credentials: true
-              max_age: 3600
-
-      - name: api
-        paths:
-          - /api
+          - /api/users
         strip_path: false
         plugins:
           - name: cors
@@ -73,3 +53,89 @@ services:
                 - exp
               key_claim_name: iss
               secret_is_base64: false
+
+  - name: book-service
+    url: http://book-service:8000
+    routes:
+      - name: api-books
+        paths:
+          - /api/books
+        strip_path: false
+        plugins: &api_plugins
+          - name: cors
+            config:
+              origins:
+                - https://log.bettercodelab.com
+                - https://board.bettercodelab.com
+                - http://localhost:5173
+              methods:
+                - GET
+                - POST
+                - PUT
+                - PATCH
+                - DELETE
+                - OPTIONS
+              headers:
+                - Authorization
+                - Content-Type
+              credentials: true
+              max_age: 3600
+          - name: request-transformer
+            config:
+              remove:
+                headers:
+                  - X-User-Sub
+                  - X-User-Email
+                  - X-User-Name
+          - name: jwt
+            config:
+              uri_param_names: []
+              cookie_names: []
+              header_names:
+                - authorization
+              claims_to_verify:
+                - exp
+              key_claim_name: iss
+              secret_is_base64: false
+      - name: api-quotes
+        paths:
+          - /api/quotes
+        strip_path: false
+        plugins: *api_plugins
+      - name: api-history
+        paths:
+          - /api/history
+        strip_path: false
+        plugins: *api_plugins
+
+  - name: group-service
+    url: http://group-service:8000
+    routes:
+      - name: api-groups
+        paths:
+          - /api/groups
+        strip_path: false
+        plugins: *api_plugins
+
+  - name: user-service-health
+    url: http://user-service:8000
+    routes:
+      - name: health
+        paths:
+          - /api/health
+        strip_path: false
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - https://log.bettercodelab.com
+                - https://board.bettercodelab.com
+                - http://localhost:5173
+              methods:
+                - GET
+                - OPTIONS
+              headers:
+                - Authorization
+                - Content-Type
+              credentials: true
+              max_age: 3600

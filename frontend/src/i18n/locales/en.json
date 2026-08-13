@@ -28,6 +28,7 @@
     "readingGroupsTab": "Reading groups",
     "addBook": "Add book",
     "createGroup": "Create group",
+    "joinGroup": "Join group",
     "addGroupBook": "Pick a book",
     "writePost": "Write",
     "activityLog": "Activity log",
@@ -35,6 +36,16 @@
     "login": "Sign in",
     "loginGoogle": "Google",
     "loginKakao": "Kakao"
+  },
+  "profile": {
+    "openMenu": "Profile settings",
+    "title": "Profile",
+    "nameLabel": "Display name",
+    "namePlaceholder": "Name to show",
+    "nameRequired": "Please enter a name.",
+    "saveFailed": "Could not update your name.",
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "home": {
     "lead": "Record everyday life—a little more of me.",
@@ -77,7 +88,24 @@
     "memberCount_one": "{{count}} member",
     "memberCount_other": "{{count}} members",
     "roleOwner": "Owner",
-    "roleAdmin": "Admin"
+    "roleAdmin": "Admin",
+    "joinTitle": "Join a reading group",
+    "joinSubtitle": "Enter the group address you want to join",
+    "joinSlugLabel": "Group address",
+    "joinSlugPlaceholder": "e.g. my-book-club",
+    "joinSlugRequired": "Please enter a group address.",
+    "joinSubmit": "Request to join",
+    "joining": "Requesting…",
+    "joinFailed": "Could not submit the join request.",
+    "pendingBadge": "Pending",
+    "pendingSection": "Awaiting approval",
+    "pendingHint": "Waiting for the owner to approve",
+    "copyInviteLink": "Copy invite link",
+    "inviteLinkCopied": "Copied",
+    "copyInviteFailed": "Could not copy the invite link.",
+    "joinInviteTitle": "Reading group invite",
+    "joinInviteLogin": "Sign in to request to join.",
+    "joinInviteProcessing": "Submitting your join request…"
   },
   "bookGroupDetail": {
     "tabsLabel": "Reading group menu",
@@ -106,7 +134,13 @@
     "commentsEmpty": "No comments yet.",
     "commentPlaceholder": "Write a comment",
     "commentSubmit": "Add comment",
-    "commentCreateFailed": "Could not add the comment."
+    "commentCreateFailed": "Could not add the comment.",
+    "approveMember": "Approve",
+    "approving": "Approving…",
+    "approveFailed": "Could not approve the member.",
+    "bookNotFound": "Group book not found.",
+    "memberWritingsTitle": "Notes from members",
+    "memberWritingsEmpty": "No member notes for this book yet. Add it to your library and leave a note."
   },
   "bookDetail": {
     "confirmDeleteBook": "Remove \"{{title}}\" from your library?",

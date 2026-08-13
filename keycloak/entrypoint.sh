@@ -42,6 +42,43 @@ configure_realms() {
   echo "Set sslRequired=NONE for master and board realms (HTTP behind TLS proxy)."
 }
 
+configure_kakao_idp() {
+  if [[ -z "${KAKAO_CLIENT_ID:-}" || -z "${KAKAO_CLIENT_SECRET:-}" ]]; then
+    echo "KAKAO_CLIENT_ID/SECRET not set; skip Kakao IdP."
+    return 0
+  fi
+
+  local idp_common=(
+    -s enabled=true
+    -s displayName=Kakao
+    -s 'config.clientId='"${KAKAO_CLIENT_ID}"
+    -s 'config.clientSecret='"${KAKAO_CLIENT_SECRET}"
+    -s 'config.authorizationUrl=https://kauth.kakao.com/oauth/authorize'
+    -s 'config.tokenUrl=https://kauth.kakao.com/oauth/token'
+    -s 'config.userInfoUrl=https://kapi.kakao.com/v1/oidc/userinfo'
+    -s 'config.issuer=https://kauth.kakao.com'
+    -s 'config.jwksUrl=https://kauth.kakao.com/.well-known/jwks.json'
+    -s 'config.clientAuthMethod=client_secret_post'
+    -s 'config.syncMode=IMPORT'
+    -s 'config.trustEmail=true'
+    -s 'config.updateProfileFirstLoginMode=off'
+    -s updateProfileFirstLoginMode=off
+    -s trustEmail=true
+  )
+
+  if /opt/keycloak/bin/kcadm.sh get "identity-provider/instances/kakao" -r board >/dev/null 2>&1; then
+    /opt/keycloak/bin/kcadm.sh update "identity-provider/instances/kakao" -r board \
+      "${idp_common[@]}" || true
+    echo "Updated Kakao identity provider."
+  else
+    /opt/keycloak/bin/kcadm.sh create identity-provider/instances -r board \
+      -s alias=kakao \
+      -s providerId=oidc \
+      "${idp_common[@]}" || true
+    echo "Created Kakao identity provider."
+  fi
+}
+
 configure_google_idp() {
   if [[ -z "${GOOGLE_CLIENT_ID:-}" || -z "${GOOGLE_CLIENT_SECRET:-}" ]]; then
     echo "GOOGLE_CLIENT_ID/SECRET not set; skip Google IdP."
@@ -106,7 +143,7 @@ configure_board_login_profile() {
   echo "Board realm: skip IdP profile form; first/last name not required for users."
 }
 
-/opt/keycloak/bin/kc.sh start-dev --import-realm &
+/opt/keycloak/bin/kc.sh start --import-realm &
 KC_PID=$!
 
 echo "Waiting for Keycloak..."
@@ -114,6 +151,7 @@ wait_for_port
 sleep 5
 configure_realms
 configure_google_idp
+configure_kakao_idp
 configure_board_login_profile
 
 wait "$KC_PID"

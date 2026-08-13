@@ -10,11 +10,14 @@ import {
 } from "react";
 import keycloak from "./keycloak";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { api } from "./api";
 
 type AuthContextValue = {
   ready: boolean;
   authenticated: boolean;
-  username: string;
+  displayName: string;
+  refreshProfile: () => Promise<void>;
+  updateDisplayName: (name: string) => Promise<void>;
   loginWithGoogle: () => void;
   loginWithKakao: () => void;
   logout: () => void;
@@ -22,7 +25,17 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const redirectUri = () => `${window.location.origin}/`;
+const redirectUri = () =>
+  `${window.location.origin}${window.location.pathname}${window.location.search}`;
+
+function fallbackDisplayName(): string {
+  return (
+    keycloak.tokenParsed?.name ||
+    keycloak.tokenParsed?.preferred_username ||
+    keycloak.tokenParsed?.email ||
+    "user"
+  );
+}
 
 function loginWithIdp(idpHint: string) {
   void keycloak
@@ -45,16 +58,48 @@ function loginWithIdp(idpHint: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
+  const [displayName, setDisplayName] = useState("");
   const initStarted = useRef(false);
 
+  const refreshProfile = useCallback(async () => {
+    if (!keycloak.authenticated) {
+      setDisplayName("");
+      return;
+    }
+    try {
+      const profile = await api.getProfile();
+      setDisplayName(profile.display_name || fallbackDisplayName());
+    } catch {
+      setDisplayName(fallbackDisplayName());
+    }
+  }, []);
+
   useEffect(() => {
-    keycloak.onAuthSuccess = () => setAuthenticated(true);
-    keycloak.onAuthLogout = () => setAuthenticated(false);
-    keycloak.onAuthError = () => setAuthenticated(false);
-    keycloak.onAuthRefreshError = () => setAuthenticated(false);
+    keycloak.onAuthSuccess = () => {
+      setAuthenticated(true);
+      void refreshProfile();
+    };
+    keycloak.onAuthLogout = () => {
+      setAuthenticated(false);
+      setDisplayName("");
+    };
+    keycloak.onAuthError = () => {
+      setAuthenticated(false);
+      setDisplayName("");
+    };
+    keycloak.onAuthRefreshError = () => {
+      setAuthenticated(false);
+      setDisplayName("");
+    };
 
     if (initStarted.current) {
-      setAuthenticated(Boolean(keycloak.authenticated));
+      const auth = Boolean(keycloak.authenticated);
+      setAuthenticated(auth);
+      if (auth) {
+        void refreshProfile();
+      } else {
+        setDisplayName("");
+      }
       setReady(true);
       return;
     }
@@ -64,41 +109,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .init({ onLoad: "check-sso", pkceMethod: "S256", checkLoginIframe: false })
       .then((auth) => {
         setAuthenticated(auth);
+        if (auth) {
+          void refreshProfile();
+        }
         setReady(true);
       })
       .catch((err) => {
         console.error("Keycloak init failed", err);
-        setAuthenticated(Boolean(keycloak.authenticated));
+        const auth = Boolean(keycloak.authenticated);
+        setAuthenticated(auth);
+        if (auth) {
+          void refreshProfile();
+        }
         setReady(true);
       });
-  }, []);
+  }, [refreshProfile]);
 
   const loginWithGoogle = useCallback(() => loginWithIdp("google"), []);
   const loginWithKakao = useCallback(() => loginWithIdp("kakao"), []);
 
   const logout = useCallback(() => {
     setAuthenticated(false);
+    setDisplayName("");
     void keycloak
       .logout({ redirectUri: redirectUri() })
       .catch(() => loginWithGoogle());
   }, [loginWithGoogle]);
 
-  const username = authenticated
-    ? keycloak.tokenParsed?.preferred_username ||
-      keycloak.tokenParsed?.email ||
-      "user"
-    : "";
+  const updateDisplayName = useCallback(async (name: string) => {
+    const profile = await api.updateProfile(name);
+    setDisplayName(profile.display_name);
+  }, []);
 
   const value = useMemo(
     () => ({
       ready,
       authenticated,
-      username,
+      displayName,
+      refreshProfile,
+      updateDisplayName,
       loginWithGoogle,
       loginWithKakao,
       logout,
     }),
-    [ready, authenticated, username, loginWithGoogle, loginWithKakao, logout],
+    [
+      ready,
+      authenticated,
+      displayName,
+      refreshProfile,
+      updateDisplayName,
+      loginWithGoogle,
+      loginWithKakao,
+      logout,
+    ],
   );
 
   if (!ready) {

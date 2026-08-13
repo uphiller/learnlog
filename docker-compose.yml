@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: board
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./postgres/init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U board -d board"]
       interval: 5s
@@ -18,6 +19,11 @@ services:
     entrypoint: ["/bin/bash", "/opt/keycloak/entrypoint-custom.sh"]
     command: []
     environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/board?currentSchema=keycloak
+      KC_DB_USERNAME: board
+      KC_DB_PASSWORD: board
+      KC_DB_SCHEMA: keycloak
       KC_HOSTNAME: auth.bettercodelab.com
       KC_HOSTNAME_URL: https://auth.bettercodelab.com
       KC_HOSTNAME_STRICT: "true"
@@ -27,10 +33,15 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID:-}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET:-}
     volumes:
       - ./keycloak/realm-board.json:/opt/keycloak/data/import/realm-board.json:ro
       - ./keycloak/board-user-profile.json:/opt/keycloak/config/board-user-profile.json:ro
       - ./keycloak/entrypoint.sh:/opt/keycloak/entrypoint-custom.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "8080"
     healthcheck:
@@ -38,28 +49,104 @@ services:
       interval: 10s
       timeout: 5s
       retries: 30
-      start_period: 60s
+      start_period: 120s
 
-  django:
-    build: ./backend
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user-service/Dockerfile
     environment:
       DJANGO_DEBUG: "true"
-      DJANGO_ALLOWED_HOSTS: django,localhost,127.0.0.1,log.bettercodelab.com,board.bettercodelab.com
+      DJANGO_ALLOWED_HOSTS: user-service,localhost,127.0.0.1,log.bettercodelab.com,board.bettercodelab.com
       DJANGO_SECRET_KEY: dev-secret-key
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
       POSTGRES_DB: board
+      POSTGRES_SCHEMA: user
+      POSTGRES_USER: board
+      POSTGRES_PASSWORD: board
+      CORS_ALLOWED_ORIGINS: https://log.bettercodelab.com,https://board.bettercodelab.com
+      KEYCLOAK_ISSUER: https://auth.bettercodelab.com/realms/board
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/board/protocol/openid-connect/certs
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  book-service:
+    build:
+      context: .
+      dockerfile: services/book-service/Dockerfile
+    environment:
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: book-service,localhost,127.0.0.1,log.bettercodelab.com,board.bettercodelab.com
+      DJANGO_SECRET_KEY: dev-secret-key
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: board
+      POSTGRES_SCHEMA: book
       POSTGRES_USER: board
       POSTGRES_PASSWORD: board
       CORS_ALLOWED_ORIGINS: https://log.bettercodelab.com,https://board.bettercodelab.com
       KEYCLOAK_ISSUER: https://auth.bettercodelab.com/realms/board
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/board/protocol/openid-connect/certs
       ALADIN_TTB_KEY: ${ALADIN_TTB_KEY:-}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
     depends_on:
       postgres:
         condition: service_healthy
     expose:
       - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  group-service:
+    build:
+      context: .
+      dockerfile: services/group-service/Dockerfile
+    environment:
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: group-service,localhost,127.0.0.1,log.bettercodelab.com,board.bettercodelab.com
+      DJANGO_SECRET_KEY: dev-secret-key
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: board
+      POSTGRES_SCHEMA: group
+      POSTGRES_USER: board
+      POSTGRES_PASSWORD: board
+      CORS_ALLOWED_ORIGINS: https://log.bettercodelab.com,https://board.bettercodelab.com
+      KEYCLOAK_ISSUER: https://auth.bettercodelab.com/realms/board
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/board/protocol/openid-connect/certs
+      BOOK_SERVICE_URL: http://book-service:8000
+      USER_SERVICE_URL: http://user-service:8000
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      book-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   kong:
     build: ./kong
@@ -73,8 +160,12 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-      django:
-        condition: service_started
+      user-service:
+        condition: service_healthy
+      book-service:
+        condition: service_healthy
+      group-service:
+        condition: service_healthy
 
   frontend:
     build: ./frontend

@@ -5,10 +5,12 @@ import { Layout } from "./Layout";
 import { BookDetailPage } from "./pages/BookDetailPage";
 import { BookGroupBoardPage } from "./pages/BookGroupBoardPage";
 import { BookGroupBookAddPage } from "./pages/BookGroupBookAddPage";
+import { BookGroupBookDetailPage } from "./pages/BookGroupBookDetailPage";
 import { BookGroupBooksPage } from "./pages/BookGroupBooksPage";
 import { BookGroupCreatePage } from "./pages/BookGroupCreatePage";
 import { BookGroupDetailLayout } from "./pages/BookGroupDetailLayout";
 import { BookGroupMembersPage } from "./pages/BookGroupMembersPage";
+import { BookGroupJoinPage } from "./pages/BookGroupJoinPage";
 import { BookGroupPostCreatePage } from "./pages/BookGroupPostCreatePage";
 import { BookGroupPostPage } from "./pages/BookGroupPostPage";
 import { BookGroupsPage } from "./pages/BookGroupsPage";
@@ -28,10 +30,13 @@ export default function App() {
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/book" element={<BookListPage />} />
               <Route path="/book/groups/new" element={<BookGroupCreatePage />} />
+              <Route path="/book/groups/join/:inviteSlug" element={<BookGroupJoinPage />} />
+              <Route path="/book/groups/join" element={<BookGroupJoinPage />} />
               <Route path="/book/groups/:slug/books/add" element={<BookGroupBookAddPage />} />
               <Route path="/book/groups/:slug/board/new" element={<BookGroupPostCreatePage />} />
               <Route path="/book/groups/:slug" element={<BookGroupDetailLayout />}>
                 <Route index element={<Navigate to="books" replace />} />
+                <Route path="books/:readingId" element={<BookGroupBookDetailPage />} />
                 <Route path="books" element={<BookGroupBooksPage />} />
                 <Route path="members" element={<BookGroupMembersPage />} />
                 <Route path="board" element={<BookGroupBoardPage />} />

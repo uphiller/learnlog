@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
 import { api, type GroupReading } from "../api";
@@ -34,7 +34,10 @@ export function BookGroupBooksPage() {
         <ul className="m-feed">
           {books.map((book) => (
             <li key={book.id} className="m-feed__item">
-              <div className="m-feed-row m-feed-row--static">
+              <Link
+                to={`/book/groups/${slug}/books/${book.id}`}
+                className="m-feed-row"
+              >
                 <div className="m-feed-row__body">
                   <h3 className="m-feed-row__title">{book.title}</h3>
                   {book.author && <p className="m-feed-row__meta">{book.author}</p>}
@@ -50,7 +53,7 @@ export function BookGroupBooksPage() {
                 ) : (
                   <div className="m-feed-row__thumb m-feed-row__thumb--empty" aria-hidden />
                 )}
-              </div>
+              </Link>
             </li>
           ))}
         </ul>

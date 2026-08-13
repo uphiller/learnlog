@@ -254,6 +254,23 @@ a:hover {
   text-decoration: none;
 }
 
+.m-feed-row__link {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.m-feed-row__link:hover {
+  text-decoration: none;
+}
+
+.m-feed-row__action {
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .m-page-head__title-row {
   display: flex;
   align-items: center;
@@ -320,6 +337,56 @@ a:hover {
 .m-book-badge--sm {
   font-size: 0.6875rem;
   padding: 2px 8px;
+}
+
+.m-book-badge--pending {
+  background: #f3f4f6;
+  color: var(--m-text-secondary);
+}
+
+.m-group-join-pending {
+  margin-bottom: 24px;
+}
+
+.m-group-writings__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.m-group-writing {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--m-border);
+}
+
+.m-group-writing:last-child {
+  border-bottom: none;
+}
+
+.m-group-writing__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.m-group-writing__name {
+  font-weight: 600;
+  color: var(--m-text);
+}
+
+.m-group-writing__completion {
+  margin-bottom: 16px;
+}
+
+.m-group-writing__completion .m-book-badge {
+  margin-bottom: 8px;
+}
+
+.m-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8125rem;
 }
 
 .m-board-compose {
@@ -412,6 +479,75 @@ a:hover {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.m-avatar--button {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.m-avatar--button:hover {
+  background: #dcefe4;
+}
+
+.m-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.m-modal__panel {
+  width: min(100%, 420px);
+  background: var(--m-bg);
+  border: 1px solid var(--m-border);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.m-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 0;
+}
+
+.m-modal__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.m-modal__close {
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--m-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.m-modal__close:hover {
+  color: var(--m-text);
+}
+
+.m-modal__form {
+  padding: 16px 20px 20px;
+}
+
+.m-modal__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .m-link-btn {

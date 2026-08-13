@@ -9,22 +9,47 @@ def user_display_name(user) -> str:
 
 class GroupListSerializer(serializers.ModelSerializer):
     my_role = serializers.SerializerMethodField()
+    my_status = serializers.SerializerMethodField()
     member_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
-        fields = ("id", "name", "slug", "my_role", "member_count", "created_at")
+        fields = ("id", "name", "slug", "my_role", "my_status", "member_count", "created_at")
 
     def get_my_role(self, obj: Group) -> str | None:
         membership = self._membership_for(obj)
         return membership.role if membership else None
+
+    def get_my_status(self, obj: Group) -> str | None:
+        membership = self._membership_for(obj)
+        return membership.status if membership else None
 
     def get_member_count(self, obj: Group) -> int:
         return obj.memberships.filter(status=GroupMembership.Status.ACTIVE).count()
 
     def _membership_for(self, obj: Group) -> GroupMembership | None:
         user = self.context["request"].user
-        return obj.memberships.filter(user=user, status=GroupMembership.Status.ACTIVE).first()
+        return (
+            obj.memberships.filter(
+                user=user,
+                status__in=(
+                    GroupMembership.Status.ACTIVE,
+                    GroupMembership.Status.PENDING,
+                ),
+            )
+            .order_by("-joined_at")
+            .first()
+        )
+
+
+class GroupJoinSerializer(serializers.Serializer):
+    slug = serializers.SlugField(max_length=120, allow_unicode=True)
+
+    def validate_slug(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("모임 주소를 입력해 주세요.")
+        return value
 
 
 class GroupMemberSerializer(serializers.ModelSerializer):
@@ -32,7 +57,7 @@ class GroupMemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupMembership
-        fields = ("user_id", "display_name", "role", "joined_at")
+        fields = ("user_id", "display_name", "role", "status", "joined_at")
 
     def get_display_name(self, obj: GroupMembership) -> str:
         user = obj.user
@@ -61,6 +86,20 @@ class GroupReadingSerializer(serializers.ModelSerializer):
     def get_set_by_name(self, obj: GroupReading) -> str:
         user = obj.set_by
         return user.display_name or user.email or user.keycloak_sub
+
+
+class GroupMemberBookQuoteSerializer(serializers.Serializer):
+    quote = serializers.CharField()
+    memo = serializers.CharField()
+    page = serializers.CharField()
+    created_at = serializers.DateTimeField()
+
+
+class GroupMemberWritingSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    display_name = serializers.CharField()
+    completion_sentence = serializers.CharField(allow_blank=True, required=False)
+    quotes = GroupMemberBookQuoteSerializer(many=True)
 
 
 class GroupReadingCreateSerializer(serializers.Serializer):

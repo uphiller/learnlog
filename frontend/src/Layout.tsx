@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "./AuthContext";
 import { BooklogTabs } from "./BooklogTabs";
 import { useGroupDetail } from "./GroupDetailContext";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
+import { ProfileMenu } from "./ProfileMenu";
 
 function userInitial(name: string | undefined): string {
   if (!name) return "?";
@@ -12,13 +14,15 @@ function userInitial(name: string | undefined): string {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
-  const { username, loginWithGoogle, loginWithKakao, logout, authenticated } = useAuth();
+  const { displayName, loginWithGoogle, loginWithKakao, logout, authenticated } = useAuth();
   const { group: groupDetail } = useGroupDetail();
   const { pathname } = useLocation();
+  const [profileOpen, setProfileOpen] = useState(false);
   const showBooklogTabs = pathname === "/book" || pathname === "/book/groups";
   const inLibraryFlow =
     pathname === "/book" || pathname === "/book/search" || /^\/book\/\d+$/.test(pathname);
   const inGroupsListFlow = pathname === "/book/groups" || pathname === "/book/groups/new";
+  const inGroupsJoinFlow = pathname === "/book/groups" || pathname === "/book/groups/join";
   const canManageGroupBooks =
     groupDetail &&
     (groupDetail.my_role === "owner" || groupDetail.my_role === "admin");
@@ -48,6 +52,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     {t("layout.createGroup")}
                   </Link>
                 )}
+                {inGroupsJoinFlow && (
+                  <Link to="/book/groups/join" className="m-btn m-btn--outline">
+                    {t("layout.joinGroup")}
+                  </Link>
+                )}
                 {inGroupBooksFlow && groupDetail && (
                   <Link
                     to={`/book/groups/${groupDetail.slug}/books/add`}
@@ -64,9 +73,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     {t("layout.writePost")}
                   </Link>
                 )}
-                <span className="m-avatar" title={username ?? undefined}>
-                  {userInitial(username)}
-                </span>
+                <button
+                  type="button"
+                  className="m-avatar m-avatar--button"
+                  title={displayName || undefined}
+                  aria-label={t("profile.openMenu")}
+                  onClick={() => setProfileOpen(true)}
+                >
+                  {userInitial(displayName)}
+                </button>
+                <ProfileMenu open={profileOpen} onClose={() => setProfileOpen(false)} />
                 <Link
                   to="/history"
                   className="m-link-btn m-icon-link"

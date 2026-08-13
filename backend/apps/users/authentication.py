@@ -81,11 +81,8 @@ def user_from_claims(claims: dict[str, Any]) -> User:
         if email and user.email != email:
             user.email = email
             updated = True
-        if display_name and user.display_name != display_name:
-            user.display_name = display_name
-            updated = True
         if updated:
-            user.save(update_fields=["email", "display_name"])
+            user.save(update_fields=["email"])
     if not user.is_active:
         raise AuthenticationFailed("User account is disabled.")
     return user
