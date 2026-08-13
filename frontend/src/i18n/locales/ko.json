@@ -77,6 +77,16 @@
     "roleOwner": "방장",
     "roleAdmin": "관리자"
   },
+  "bookGroupDetail": {
+    "tabsLabel": "독서모임 메뉴",
+    "booksTab": "읽은 책",
+    "membersTab": "멤버",
+    "notFound": "독서모임을 찾을 수 없습니다.",
+    "booksEmpty": "아직 모임에서 완독한 책이 없습니다.",
+    "membersEmpty": "멤버가 없습니다.",
+    "readerCount_one": "{{count}}명이 완독",
+    "readerCount_other": "{{count}}명이 완독"
+  },
   "bookDetail": {
     "confirmDeleteBook": "「{{title}}」을(를) 서재에서 삭제할까요?",
     "confirmDeleteQuote": "이 문장 노트를 삭제할까요?",

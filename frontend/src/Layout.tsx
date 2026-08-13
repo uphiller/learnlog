@@ -16,7 +16,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const showBooklogTabs = pathname === "/book" || pathname === "/book/groups";
   const inLibraryFlow =
     pathname === "/book" || pathname === "/book/search" || /^\/book\/\d+$/.test(pathname);
-  const inGroupsFlow = pathname === "/book/groups" || pathname === "/book/groups/new";
+  const inGroupsListFlow = pathname === "/book/groups" || pathname === "/book/groups/new";
 
   return (
     <div className="layout">
@@ -34,7 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     {t("layout.addBook")}
                   </Link>
                 )}
-                {inGroupsFlow && (
+                {inGroupsListFlow && (
                   <Link to="/book/groups/new" className="m-btn m-btn--write">
                     {t("layout.createGroup")}
                   </Link>

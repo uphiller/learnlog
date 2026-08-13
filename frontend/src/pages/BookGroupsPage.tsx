@@ -68,7 +68,7 @@ export function BookGroupsPage() {
             const badge = roleLabel(group.my_role, t);
             return (
               <li key={group.id} className="m-feed__item">
-                <div className="m-feed-row m-feed-row--static">
+                <Link to={`/book/groups/${group.slug}/books`} className="m-feed-row">
                   <div className="m-feed-row__body">
                     <div className="m-feed-row__title-row">
                       <h2 className="m-feed-row__title">{group.name}</h2>
@@ -78,7 +78,7 @@ export function BookGroupsPage() {
                       {t("bookGroups.memberCount", { count: group.member_count })}
                     </p>
                   </div>
-                </div>
+                </Link>
               </li>
             );
           })}

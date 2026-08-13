@@ -175,6 +175,31 @@ export type ReadingGroup = {
   created_at: string;
 };
 
+export type GroupMember = {
+  user_id: number;
+  display_name: string;
+  role: "owner" | "admin" | "member";
+  joined_at: string;
+};
+
+export type GroupBookReader = {
+  display_name: string;
+  completion_sentence: string;
+};
+
+export type GroupBook = {
+  aladin_item_id: string;
+  title: string;
+  author: string;
+  cover_url: string;
+  isbn13: string;
+  publisher: string;
+  pub_date: string;
+  total_pages: number | null;
+  reader_count: number;
+  readers: GroupBookReader[];
+};
+
 export const api = {
   listPosts: (page = 1) => request<Paginated<PostListItem>>(`/posts/?page=${page}`),
   getPost: (id: number) => request<PostDetail>(`/posts/${id}/`),
@@ -217,4 +242,8 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ name }),
     }),
+  getReadingGroup: (slug: string) => request<ReadingGroup>(`/groups/${slug}/`),
+  listGroupMembers: (slug: string) => request<GroupMember[]>(`/groups/${slug}/members/`),
+  listGroupBooks: (slug: string) =>
+    request<{ results: GroupBook[] }>(`/groups/${slug}/books/`),
 };
