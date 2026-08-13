@@ -63,7 +63,19 @@
     "empty": "You are not in any reading groups yet.",
     "createTitle": "Create reading group",
     "createSubtitle": "Start a group to read together",
-    "backToGroups": "← Reading groups"
+    "backToGroups": "← Reading groups",
+    "nameLabel": "Group name",
+    "namePlaceholder": "Enter a group name",
+    "nameRequired": "Please enter a group name.",
+    "createSubmit": "Create group",
+    "creating": "Creating…",
+    "createFailed": "Could not create the group.",
+    "groupCount_one": "{{count}} group",
+    "groupCount_other": "{{count}} groups",
+    "memberCount_one": "{{count}} member",
+    "memberCount_other": "{{count}} members",
+    "roleOwner": "Owner",
+    "roleAdmin": "Admin"
   },
   "bookDetail": {
     "confirmDeleteBook": "Remove \"{{title}}\" from your library?",

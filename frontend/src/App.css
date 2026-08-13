@@ -206,6 +206,54 @@ a:hover {
   font-weight: 500;
 }
 
+.m-group-create {
+  max-width: var(--m-max);
+  margin: 0 auto;
+}
+
+.m-group-create__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-group-create__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m-text-secondary);
+}
+
+.m-group-create__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--m-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.9375rem;
+  background: #fff;
+}
+
+.m-group-create__input:focus {
+  outline: none;
+  border-color: var(--m-green);
+}
+
+.m-group-create__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.m-feed-row--static {
+  cursor: default;
+}
+
+.m-feed-row--static:hover {
+  text-decoration: none;
+}
+
 .m-avatar {
   width: 32px;
   height: 32px;

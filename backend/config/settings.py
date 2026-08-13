@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.board",
     "apps.books",
+    "apps.groups",
     "apps.core",
 ]
 

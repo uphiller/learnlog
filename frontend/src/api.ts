@@ -166,6 +166,15 @@ export type HistoryCalendarResponse = {
   events_by_date: Record<string, HistoryEvent[]>;
 };
 
+export type ReadingGroup = {
+  id: number;
+  name: string;
+  slug: string;
+  my_role: "owner" | "admin" | "member" | null;
+  member_count: number;
+  created_at: string;
+};
+
 export const api = {
   listPosts: (page = 1) => request<Paginated<PostListItem>>(`/posts/?page=${page}`),
   getPost: (id: number) => request<PostDetail>(`/posts/${id}/`),
@@ -200,4 +209,12 @@ export const api = {
   deleteQuote: (id: number) => request<void>(`/quotes/${id}/`, { method: "DELETE" }),
   getHistoryCalendar: (year: number, month: number) =>
     request<HistoryCalendarResponse>(`/history/calendar/?year=${year}&month=${month}`),
+
+  listReadingGroups: (page = 1) =>
+    request<Paginated<ReadingGroup>>(`/groups/?domain=book&page=${page}`),
+  createReadingGroup: (name: string) =>
+    request<ReadingGroup>("/groups/?domain=book", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
 };

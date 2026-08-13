@@ -63,7 +63,19 @@
     "empty": "아직 참여 중인 독서모임이 없습니다.",
     "createTitle": "독서모임 개설",
     "createSubtitle": "함께 읽을 모임을 만듭니다",
-    "backToGroups": "← 독서모임"
+    "backToGroups": "← 독서모임",
+    "nameLabel": "모임명",
+    "namePlaceholder": "모임 이름을 입력하세요",
+    "nameRequired": "모임명을 입력해 주세요.",
+    "createSubmit": "모임 개설",
+    "creating": "개설 중…",
+    "createFailed": "모임 개설에 실패했습니다.",
+    "groupCount_one": "{{count}}개",
+    "groupCount_other": "{{count}}개",
+    "memberCount_one": "멤버 {{count}}명",
+    "memberCount_other": "멤버 {{count}}명",
+    "roleOwner": "방장",
+    "roleAdmin": "관리자"
   },
   "bookDetail": {
     "confirmDeleteBook": "「{{title}}」을(를) 서재에서 삭제할까요?",
