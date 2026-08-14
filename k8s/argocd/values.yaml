@@ -1,0 +1,62 @@
+# Lightweight Argo CD for single-node k3s (~8GB RAM).
+configs:
+  cm:
+    # k8s/base references files outside k8s/ (postgres init, keycloak realm, etc.)
+    kustomize.buildOptions: --load-restrictor LoadRestrictionsNone
+    timeout.reconciliation: 180s
+  params:
+    server.insecure: "true"
+
+controller:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+server:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hostname: argocd.bettercodelab.com
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+
+repoServer:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+dex:
+  enabled: false
+
+applicationSet:
+  enabled: false
+
+notifications:
+  enabled: false

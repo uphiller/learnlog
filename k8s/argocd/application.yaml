@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: board-platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: board-platform
+  source:
+    repoURL: https://github.com/uphiller/learnlog.git
+    targetRevision: main
+    path: k8s/overlays/argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: board
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: app-secrets
+      namespace: board
