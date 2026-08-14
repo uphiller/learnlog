@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: board
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: board
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.0.7
+          command: ["/bin/bash", "/opt/keycloak/entrypoint-custom.sh"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://postgres:5432/board?currentSchema=keycloak
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: KC_DB_SCHEMA
+              value: keycloak
+            - name: KC_HOSTNAME
+              value: auth.bettercodelab.com
+            - name: KC_HOSTNAME_URL
+              value: https://auth.bettercodelab.com
+            - name: KC_HOSTNAME_STRICT
+              value: "true"
+            - name: KC_PROXY_HEADERS
+              value: xforwarded
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin
+                  key: username
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin
+                  key: password
+            - name: JAVA_OPTS_APPEND
+              value: "-Xms256m -Xmx512m"
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: GOOGLE_CLIENT_ID
+                  optional: true
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: GOOGLE_CLIENT_SECRET
+                  optional: true
+            - name: KAKAO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: KAKAO_CLIENT_ID
+                  optional: true
+            - name: KAKAO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: KAKAO_CLIENT_SECRET
+                  optional: true
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+          volumeMounts:
+            - name: keycloak-config
+              mountPath: /opt/keycloak/data/import/realm-board.json
+              subPath: realm-board.json
+              readOnly: true
+            - name: keycloak-config
+              mountPath: /opt/keycloak/config/board-user-profile.json
+              subPath: board-user-profile.json
+              readOnly: true
+            - name: keycloak-config
+              mountPath: /opt/keycloak/entrypoint-custom.sh
+              subPath: entrypoint-custom.sh
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+      volumes:
+        - name: keycloak-config
+          configMap:
+            name: keycloak-config
+            defaultMode: 0755

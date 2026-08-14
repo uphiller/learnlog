@@ -1,0 +1,17 @@
+# Install on k3s server (auto-applied on k3s start):
+#   sudo cp k8s/traefik/helmchartconfig.yaml /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+#
+# Cloudflare Flexible SSL: trust X-Forwarded-* from the edge proxy.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    ports:
+      web:
+        exposedPort: 80
+    additionalArguments:
+      - "--entrypoints.web.forwardedHeaders.insecure=true"
+      - "--entrypoints.web.proxyProtocol.insecure=true"

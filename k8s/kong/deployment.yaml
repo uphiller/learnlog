@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong
+  namespace: board
+spec:
+  selector:
+    app: kong
+  ports:
+    - name: proxy
+      port: 8000
+      targetPort: 8000
+    - name: admin
+      port: 8001
+      targetPort: 8001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+  namespace: board
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      initContainers:
+        - name: wait-for-keycloak
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until wget -q -O- http://keycloak:8080/realms/board >/dev/null 2>&1; do
+                echo waiting for keycloak
+                sleep 5
+              done
+        - name: wait-for-services
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              for svc in user-service book-service group-service; do
+                until wget -q -O- http://${svc}:8000/api/health/ >/dev/null 2>&1; do
+                  echo waiting for $svc
+                  sleep 3
+                done
+              done
+      containers:
+        - name: kong
+          image: board-platform-kong:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+            - containerPort: 8001
+          env:
+            - name: KEYCLOAK_JWKS_URL
+              value: http://keycloak:8080/realms/board/protocol/openid-connect/certs
+            - name: KEYCLOAK_ISSUER
+              value: https://auth.bettercodelab.com/realms/board
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /tmp/kong.yml
+            - name: KONG_ADMIN_LISTEN
+              value: 127.0.0.1:8001
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10

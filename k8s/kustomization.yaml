@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: board
+
+resources:
+  - namespace.yaml
+  - postgres/statefulset.yaml
+  - keycloak/deployment.yaml
+  - user-service/deployment.yaml
+  - book-service/deployment.yaml
+  - group-service/deployment.yaml
+  - kong/deployment.yaml
+  - frontend/deployment.yaml
+  - ingress/board-platform.yaml
+
+configMapGenerator:
+  - name: postgres-init
+    files:
+      - init-schemas.sql=../postgres/init-schemas.sql
+  - name: keycloak-config
+    files:
+      - realm-board.json=../keycloak/realm-board.json
+      - board-user-profile.json=../keycloak/board-user-profile.json
+      - entrypoint-custom.sh=../keycloak/entrypoint.sh
+
+secretGenerator:
+  - name: postgres-credentials
+    literals:
+      - POSTGRES_DB=board
+      - POSTGRES_USER=board
+      - POSTGRES_PASSWORD=board
+  - name: keycloak-admin
+    literals:
+      - username=admin
+      - password=admin
+  - name: app-secrets
+    envs:
+      - secrets/app.env
+
+generatorOptions:
+  disableNameSuffixHash: true

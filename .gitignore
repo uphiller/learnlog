@@ -4,4 +4,5 @@ __pycache__/
 node_modules/
 dist/
 .env
+k8s/secrets/app.env
 *.sqlite3
