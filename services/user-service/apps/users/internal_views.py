@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from board_common.internal import is_valid_internal_request
+from apps.core.internal import is_valid_internal_request
 
 from .models import User
 

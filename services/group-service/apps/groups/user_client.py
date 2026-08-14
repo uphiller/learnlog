@@ -7,7 +7,7 @@ import urllib.request
 
 from django.conf import settings
 
-from board_common.internal import INTERNAL_API_KEY_HEADER
+from apps.core.internal import INTERNAL_API_KEY_HEADER
 
 
 class UserServiceError(Exception):

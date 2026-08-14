@@ -10,8 +10,6 @@ import jwt
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
-from .identity import AuthenticatedIdentity
-
 HEADER_SUB = "HTTP_X_USER_SUB"
 HEADER_EMAIL = "HTTP_X_USER_EMAIL"
 HEADER_NAME = "HTTP_X_USER_NAME"
@@ -19,6 +17,21 @@ HEADER_NAME = "HTTP_X_USER_NAME"
 _jwks_cache: dict[str, Any] | None = None
 _jwks_fetched_at: float = 0.0
 JWKS_TTL_SECONDS = 300
+
+
+class AuthenticatedIdentity:
+    """Lightweight request identity for services without a local User table."""
+
+    def __init__(self, keycloak_sub: str, email: str = "", display_name: str = ""):
+        self.keycloak_sub = keycloak_sub
+        self.email = email
+        self.display_name = display_name or email or keycloak_sub
+        self.is_authenticated = True
+        self.is_active = True
+        self.pk = None
+
+    def __str__(self) -> str:
+        return self.display_name
 
 
 def _keycloak_issuer() -> str:

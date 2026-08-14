@@ -5,7 +5,7 @@ Django settings for user-service.
 import os
 from pathlib import Path
 
-from board_common.django_settings import cors_config, database_config, rest_framework_config
+from config.django_settings import cors_config, database_config, rest_framework_config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -79,10 +79,6 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = rest_framework_config()
-REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = [
-    "apps.users.authentication.KeycloakGatewayAuthentication",
-    "apps.users.authentication.KeycloakJWTAuthentication",
-]
 
 INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "")
 

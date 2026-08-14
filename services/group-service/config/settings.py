@@ -5,7 +5,7 @@ Django settings for group-service.
 import os
 from pathlib import Path
 
-from board_common.django_settings import cors_config, database_config, rest_framework_config
+from config.django_settings import cors_config, database_config, rest_framework_config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

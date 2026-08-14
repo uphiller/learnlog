@@ -77,7 +77,7 @@ PostgreSQL 인스턴스는 `postgres` 서비스 1개, DB `board`, 서비스별 �
 CREATE SCHEMA IF NOT EXISTS keycloak;
 ```
 
-- 공통 JWT 인증: `services/shared/board_common/`
+- JWT 인증·DB·내부 API 규약은 서비스별 `config/` · `apps/core/`에 두며, env 이름·Kong 헤더는 서비스 간 동일하게 맞춥니다
 - group → book 내부 호출: `BOOK_SERVICE_URL` + `INTERNAL_API_KEY` (Docker DNS, 별도 SD 불필요)
 - Kong이 path 기준으로 upstream 라우팅
 

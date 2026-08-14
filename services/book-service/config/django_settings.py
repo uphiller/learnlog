@@ -25,8 +25,8 @@ def database_config() -> dict:
 def rest_framework_config() -> dict:
     return {
         "DEFAULT_AUTHENTICATION_CLASSES": [
-            "board_common.auth.KeycloakGatewayAuthentication",
-            "board_common.auth.KeycloakJWTAuthentication",
+            "apps.core.authentication.KeycloakGatewayAuthentication",
+            "apps.core.authentication.KeycloakJWTAuthentication",
         ],
         "DEFAULT_PERMISSION_CLASSES": [
             "rest_framework.permissions.IsAuthenticated",
