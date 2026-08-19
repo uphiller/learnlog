@@ -5,7 +5,8 @@ namespace: board
 
 resources:
   - ../namespace.yaml
-  - ../postgres/statefulset.yaml
+  - ../secrets/sealed/postgres-credentials.yaml
+  - ../secrets/sealed/keycloak-admin.yaml
   - ../keycloak/deployment.yaml
   - ../user-service/deployment.yaml
   - ../book-service/deployment.yaml
@@ -15,25 +16,9 @@ resources:
   - ../ingress/board-platform.yaml
 
 configMapGenerator:
-  - name: postgres-init
-    files:
-      - init-schemas.sql=../../postgres/init-schemas.sql
   - name: keycloak-config
     files:
       - realm-board.json=../../keycloak/realm-board.json
       - board-user-profile.json=../../keycloak/board-user-profile.json
       - entrypoint-custom.sh=../../keycloak/entrypoint.sh
 
-secretGenerator:
-  - name: postgres-credentials
-    literals:
-      - POSTGRES_DB=board
-      - POSTGRES_USER=board
-      - POSTGRES_PASSWORD=board
-  - name: keycloak-admin
-    literals:
-      - username=admin
-      - password=admin
-
-generatorOptions:
-  disableNameSuffixHash: true

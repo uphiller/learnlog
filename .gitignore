@@ -5,4 +5,5 @@ node_modules/
 dist/
 .env
 k8s/secrets/app.env
+k8s/secrets/postgres.env
 *.sqlite3

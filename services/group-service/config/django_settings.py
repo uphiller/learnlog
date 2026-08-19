@@ -15,10 +15,14 @@ def database_config() -> dict:
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
     schema = os.environ.get("POSTGRES_SCHEMA", "").strip()
+    options: dict[str, str] = {}
     if schema:
-        config["OPTIONS"] = {
-            "options": f'-c search_path="{schema}",public',
-        }
+        options["options"] = f'-c search_path="{schema}",public'
+    sslmode = os.environ.get("POSTGRES_SSLMODE", "").strip()
+    if sslmode:
+        options["sslmode"] = sslmode
+    if options:
+        config["OPTIONS"] = options
     return {"default": config}
 
 
