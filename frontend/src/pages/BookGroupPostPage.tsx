@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
 import { api, type GroupComment, type GroupPostDetail } from "../api";
+import { bookPath } from "../routes";
 
 export function BookGroupPostPage() {
   const { t, i18n } = useTranslation();
@@ -59,7 +60,7 @@ export function BookGroupPostPage() {
     return (
       <section className="m-group-panel">
         <p className="m-error">{error}</p>
-        <Link to={`/book/groups/${slug}/board`} className="m-link-btn">
+        <Link to={bookPath(`/groups/${slug}/board`)} className="m-link-btn">
           {t("bookGroupDetail.backToBoard")}
         </Link>
       </section>
@@ -73,7 +74,7 @@ export function BookGroupPostPage() {
   return (
     <section className="m-group-panel">
       <p className="m-breadcrumb m-breadcrumb--compact">
-        <Link to={`/book/groups/${slug}/board`}>{t("bookGroupDetail.backToBoard")}</Link>
+        <Link to={bookPath(`/groups/${slug}/board`)}>{t("bookGroupDetail.backToBoard")}</Link>
       </p>
 
       <article className="m-board-post">

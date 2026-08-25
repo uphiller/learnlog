@@ -94,7 +94,7 @@ spec:
                   name: keycloak-admin
                   key: password
             - name: JAVA_OPTS_APPEND
-              value: "-Xms256m -Xmx512m"
+              value: "-Xms128m -Xmx384m"
             - name: GOOGLE_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -122,10 +122,10 @@ spec:
           resources:
             requests:
               cpu: 200m
-              memory: 512Mi
+              memory: 384Mi
             limits:
-              cpu: "1"
-              memory: 768Mi
+              cpu: 750m
+              memory: 640Mi
           volumeMounts:
             - name: keycloak-config
               mountPath: /opt/keycloak/data/import/realm-board.json

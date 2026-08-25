@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
 import { api, type GroupReading } from "../api";
+import { bookPath } from "../routes";
 
 export function BookGroupBooksPage() {
   const { t, i18n } = useTranslation();
@@ -35,7 +36,7 @@ export function BookGroupBooksPage() {
           {books.map((book) => (
             <li key={book.id} className="m-feed__item">
               <Link
-                to={`/book/groups/${slug}/books/${book.id}`}
+                to={bookPath(`/groups/${slug}/books/${book.id}`)}
                 className="m-feed-row"
               >
                 <div className="m-feed-row__body">

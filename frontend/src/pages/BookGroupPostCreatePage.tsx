@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { api } from "../api";
+import { bookPath } from "../routes";
 
 export function BookGroupPostCreatePage() {
   const { t } = useTranslation();
@@ -19,7 +20,7 @@ export function BookGroupPostCreatePage() {
     setError(null);
     try {
       const post = await api.createGroupPost(slug, { title: title.trim(), body: body.trim() });
-      navigate(`/book/groups/${slug}/board/${post.id}`);
+      navigate(bookPath(`/groups/${slug}/board/${post.id}`));
     } catch (err) {
       setError(err instanceof Error ? err.message : t("bookGroupDetail.postCreateFailed"));
     } finally {
@@ -33,9 +34,9 @@ export function BookGroupPostCreatePage() {
         <p className="m-breadcrumb">
           <Link to="/">{t("common.brand")}</Link>
           <span aria-hidden> › </span>
-          <Link to="/book/groups">{t("bookGroups.title")}</Link>
+          <Link to={bookPath("/groups")}>{t("bookGroups.title")}</Link>
           <span aria-hidden> › </span>
-          <Link to={`/book/groups/${slug}/board`}>{t("bookGroupDetail.boardTab")}</Link>
+          <Link to={bookPath(`/groups/${slug}/board`)}>{t("bookGroupDetail.boardTab")}</Link>
         </p>
         <h1 className="m-page-head__title">{t("bookGroupDetail.newPost")}</h1>
       </header>
@@ -61,7 +62,7 @@ export function BookGroupPostCreatePage() {
             placeholder={t("bookGroupDetail.postBodyPlaceholder")}
           />
           <div className="m-board-compose__actions">
-            <Link to={`/book/groups/${slug}/board`} className="m-link-btn">
+            <Link to={bookPath(`/groups/${slug}/board`)} className="m-link-btn">
               {t("bookGroupDetail.backToBoard")}
             </Link>
             <button type="submit" className="m-btn m-btn--write" disabled={submitting}>

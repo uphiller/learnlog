@@ -5,6 +5,8 @@ import { useAuth } from "../AuthContext";
 import { isBookFinished } from "../bookProgress";
 import { LoadingState } from "../LoadingState";
 import { api, type Book } from "../api";
+import { OnboardingChecklist } from "../OnboardingChecklist";
+import { bookPath } from "../routes";
 
 export function BookListPage() {
   const { t } = useTranslation();
@@ -52,6 +54,8 @@ export function BookListPage() {
         </header>
       )}
 
+      {authenticated && <OnboardingChecklist books={books} />}
+
       {authenticated && loading && <LoadingState />}
       {error && <p className="m-error">{error}</p>}
 
@@ -67,7 +71,7 @@ export function BookListPage() {
 
             return (
               <li key={book.id} className="m-feed__item">
-                <Link to={`/book/${book.id}`} className="m-feed-row">
+                <Link to={bookPath(`/${book.id}`)} className="m-feed-row">
                   <div className="m-feed-row__body">
                     <div className="m-feed-row__title-row">
                       <h2 className="m-feed-row__title">{book.title}</h2>
@@ -116,7 +120,7 @@ export function BookListPage() {
       {!loading && authenticated && books.length === 0 && !error && (
         <div className="m-empty">
           <p className="m-empty__text">{t("bookList.empty")}</p>
-          <Link to="/book/search" className="m-btn m-btn--write">
+          <Link to={bookPath("/search")} className="m-btn m-btn--write">
             {t("bookList.searchBooks")}
           </Link>
         </div>

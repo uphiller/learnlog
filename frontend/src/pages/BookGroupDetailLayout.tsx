@@ -5,6 +5,7 @@ import { useGroupDetail } from "../GroupDetailContext";
 import { GroupDetailTabs } from "../GroupDetailTabs";
 import { LoadingState } from "../LoadingState";
 import { api, type ReadingGroup } from "../api";
+import { bookPath } from "../routes";
 
 function roleLabel(role: ReadingGroup["my_role"], t: (key: string) => string): string | null {
   if (role === "owner") return t("bookGroups.roleOwner");
@@ -53,7 +54,7 @@ export function BookGroupDetailLayout() {
     return (
       <div className="m-page">
         <p className="m-error">{error ?? t("bookGroupDetail.notFound")}</p>
-        <Link to="/book/groups" className="m-link-btn">
+        <Link to={bookPath("/groups")} className="m-link-btn">
           {t("bookGroups.backToGroups")}
         </Link>
       </div>
@@ -68,7 +69,7 @@ export function BookGroupDetailLayout() {
         <p className="m-breadcrumb">
           <Link to="/">{t("common.brand")}</Link>
           <span aria-hidden> › </span>
-          <Link to="/book/groups">{t("bookGroups.title")}</Link>
+          <Link to={bookPath("/groups")}>{t("bookGroups.title")}</Link>
         </p>
         <div className="m-page-head__title-row">
           <h1 className="m-page-head__title">{group.name}</h1>

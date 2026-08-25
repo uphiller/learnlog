@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ApiError, api } from "../api";
 import { useAuth } from "../AuthContext";
+import { bookPath } from "../routes";
 
 function parseApiErrorMessage(err: unknown, fallback: string): string {
   if (!(err instanceof ApiError)) return fallback;
@@ -56,10 +57,10 @@ export function BookGroupJoinPage() {
     setError(null);
     try {
       await api.requestJoinGroup(trimmed);
-      navigate("/book/groups");
+      navigate(bookPath("/groups"));
     } catch (err) {
       if (isAlreadyMemberError(err)) {
-        navigate(`/book/groups/${trimmed}/books`);
+        navigate(bookPath(`/groups/${trimmed}/books`));
         return;
       }
       setError(parseApiErrorMessage(err, t("bookGroups.joinFailed")));
@@ -86,7 +87,7 @@ export function BookGroupJoinPage() {
           <p className="m-breadcrumb">
             <Link to="/">{t("common.brand")}</Link>
             <span aria-hidden> › </span>
-            <Link to="/book/groups">{t("bookGroups.title")}</Link>
+            <Link to={bookPath("/groups")}>{t("bookGroups.title")}</Link>
           </p>
           <h1 className="m-page-head__title">{t("bookGroups.joinInviteTitle")}</h1>
           <p className="m-page-head__sub">{t("bookGroups.joinInviteLogin")}</p>
@@ -120,7 +121,7 @@ export function BookGroupJoinPage() {
         <p className="m-breadcrumb">
           <Link to="/">{t("common.brand")}</Link>
           <span aria-hidden> › </span>
-          <Link to="/book/groups">{t("bookGroups.title")}</Link>
+          <Link to={bookPath("/groups")}>{t("bookGroups.title")}</Link>
         </p>
         <h1 className="m-page-head__title">
           {isInviteLink ? t("bookGroups.joinInviteTitle") : t("bookGroups.joinTitle")}
@@ -147,7 +148,7 @@ export function BookGroupJoinPage() {
               placeholder={t("bookGroups.joinSlugPlaceholder")}
             />
             <div className="m-group-create__actions">
-              <Link to="/book/groups" className="m-link-btn">
+              <Link to={bookPath("/groups")} className="m-link-btn">
                 {t("bookGroups.backToGroups")}
               </Link>
               <button type="submit" className="m-btn m-btn--write" disabled={submitting}>
@@ -158,7 +159,7 @@ export function BookGroupJoinPage() {
         )}
         {isInviteLink && error && (
           <div className="m-group-create__actions">
-            <Link to="/book/groups" className="m-link-btn">
+            <Link to={bookPath("/groups")} className="m-link-btn">
               {t("bookGroups.backToGroups")}
             </Link>
             <button

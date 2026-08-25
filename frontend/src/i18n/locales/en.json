@@ -55,6 +55,23 @@
     "booklogDesc": "Track books you've read and quotes worth keeping.",
     "hubNote": "More logs will be added beyond the book log."
   },
+  "onboarding": {
+    "title": "Getting started",
+    "lead": "New to the book log? Follow these steps to get going.",
+    "progress": "{{done}} / {{total}} complete",
+    "optional": "Optional",
+    "profile": "Set your display name",
+    "profileAction": "Open profile",
+    "book": "Add your first book",
+    "bookAction": "Search for books",
+    "quote": "Save a quote note",
+    "quoteAction": "Add a quote note",
+    "quoteHint": "Add a book first",
+    "group": "Create or join a reading group",
+    "groupAction": "Browse reading groups",
+    "allRequiredDone": "You're all set with the basics. Happy reading!",
+    "dismiss": "Don't show again"
+  },
   "bookList": {
     "guestTitle": "Books you've read, lines worth keeping",
     "guestLead": "Build your library and note the passages that stay with you.",

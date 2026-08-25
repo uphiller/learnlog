@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { groupBasePath } from "./routes";
 
 type Props = {
   slug: string;
@@ -8,7 +9,7 @@ type Props = {
 export function GroupDetailTabs({ slug }: Props) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const base = `/book/groups/${slug}`;
+  const base = groupBasePath(slug);
   const booksActive = pathname === `${base}/books` || pathname.startsWith(`${base}/books/`);
 
   return (

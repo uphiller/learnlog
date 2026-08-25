@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
 import { api, type GroupPost } from "../api";
+import { bookPath } from "../routes";
 
 function bodyPreview(body: string, max = 120): string {
   const trimmed = body.trim();
@@ -42,7 +43,7 @@ export function BookGroupBoardPage() {
         <ul className="m-feed">
           {posts.map((post) => (
             <li key={post.id} className="m-feed__item">
-              <Link to={`/book/groups/${slug}/board/${post.id}`} className="m-feed-row m-board-row">
+              <Link to={bookPath(`/groups/${slug}/board/${post.id}`)} className="m-feed-row m-board-row">
                 <div className="m-feed-row__body">
                   <h3 className="m-feed-row__title">{post.title}</h3>
                   <p className="m-board-row__preview">{bodyPreview(post.body)}</p>

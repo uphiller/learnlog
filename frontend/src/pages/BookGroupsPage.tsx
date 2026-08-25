@@ -5,6 +5,7 @@ import { useAuth } from "../AuthContext";
 import { copyGroupInviteLink } from "../groupInvite";
 import { LoadingState } from "../LoadingState";
 import { api, type ReadingGroup } from "../api";
+import { bookPath } from "../routes";
 
 function roleLabel(role: ReadingGroup["my_role"], t: (key: string) => string): string | null {
   if (role === "owner") return t("bookGroups.roleOwner");
@@ -110,7 +111,7 @@ export function BookGroupsPage() {
             return (
               <li key={group.id} className="m-feed__item">
                 <div className="m-feed-row">
-                  <Link to={`/book/groups/${group.slug}/books`} className="m-feed-row__link">
+                  <Link to={bookPath(`/groups/${group.slug}/books`)} className="m-feed-row__link">
                     <div className="m-feed-row__body">
                       <div className="m-feed-row__title-row">
                         <h2 className="m-feed-row__title">{group.name}</h2>
@@ -142,7 +143,7 @@ export function BookGroupsPage() {
       {!loading && authenticated && activeGroups.length === 0 && pendingGroups.length === 0 && !error && (
         <div className="m-empty">
           <p className="m-empty__text">{t("bookGroups.empty")}</p>
-          <Link to="/book/groups/new" className="m-btn m-btn--write">
+          <Link to={bookPath("/groups/new")} className="m-btn m-btn--write">
             {t("layout.createGroup")}
           </Link>
         </div>

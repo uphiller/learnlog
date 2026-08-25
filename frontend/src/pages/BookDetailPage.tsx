@@ -5,6 +5,7 @@ import { useAuth } from "../AuthContext";
 import { isBookFinished, canRequestCompletionBadge } from "../bookProgress";
 import { LoadingState } from "../LoadingState";
 import { api, type Book, type BookQuote, type PeerBook, type PeerQuote } from "../api";
+import { bookPath } from "../routes";
 
 export function BookDetailPage() {
   const { t, i18n } = useTranslation();
@@ -106,7 +107,7 @@ export function BookDetailPage() {
   async function onDeleteBook() {
     if (!book || !window.confirm(t("bookDetail.confirmDeleteBook", { title: book.title }))) return;
     await api.deleteBook(book.id);
-    navigate("/book");
+    navigate(bookPath());
   }
 
   async function onCompleteSubmit(e: FormEvent) {
@@ -146,7 +147,7 @@ export function BookDetailPage() {
         pub_date: hit.pub_date,
         total_pages: hit.total_pages,
       });
-      navigate(`/book/${created.id}`);
+      navigate(bookPath(`/${created.id}`));
     } catch (err) {
       setError(err instanceof Error ? err.message : t("common.addFailed"));
     } finally {
@@ -186,7 +187,7 @@ export function BookDetailPage() {
         )}
 
         <div className="m-article__actions">
-          <Link to="/book" className="m-link-btn">
+          <Link to={bookPath()} className="m-link-btn">
             {t("bookDetail.backToLibrary")}
           </Link>
           <button type="button" className="m-link-btn m-link-btn--danger" onClick={() => void onDeleteBook()}>

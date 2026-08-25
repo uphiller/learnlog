@@ -1,6 +1,8 @@
 import keycloak from "./keycloak";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://log.bettercodelab.com/api";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== "undefined" ? `${window.location.origin}/api` : "/api");
 
 export class ApiError extends Error {
   status: number;

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ApiError, api } from "../api";
+import { bookPath } from "../routes";
 
 function parseApiErrorMessage(err: unknown, fallback: string): string {
   if (!(err instanceof ApiError)) return fallback;
@@ -35,7 +36,7 @@ export function BookGroupCreatePage() {
     setError(null);
     try {
       await api.createReadingGroup(trimmed);
-      navigate("/book/groups");
+      navigate(bookPath("/groups"));
     } catch (err) {
       setError(parseApiErrorMessage(err, t("bookGroups.createFailed")));
     } finally {
@@ -49,7 +50,7 @@ export function BookGroupCreatePage() {
         <p className="m-breadcrumb">
           <Link to="/">{t("common.brand")}</Link>
           <span aria-hidden> › </span>
-          <Link to="/book/groups">{t("bookGroups.title")}</Link>
+          <Link to={bookPath("/groups")}>{t("bookGroups.title")}</Link>
         </p>
         <h1 className="m-page-head__title">{t("bookGroups.createTitle")}</h1>
         <p className="m-page-head__sub">{t("bookGroups.createSubtitle")}</p>
@@ -71,7 +72,7 @@ export function BookGroupCreatePage() {
             placeholder={t("bookGroups.namePlaceholder")}
           />
           <div className="m-group-create__actions">
-            <Link to="/book/groups" className="m-link-btn">
+            <Link to={bookPath("/groups")} className="m-link-btn">
               {t("bookGroups.backToGroups")}
             </Link>
             <button type="submit" className="m-btn m-btn--write" disabled={submitting}>

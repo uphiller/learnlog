@@ -32,11 +32,31 @@ configure_realms() {
 
   CLIENT_UUID="$(/opt/keycloak/bin/kcadm.sh get clients -r board -q clientId=board-spa --fields id 2>/dev/null | grep -oE '[0-9a-f-]{36}' | head -1 || true)"
   if [[ -n "${CLIENT_UUID}" ]]; then
-    /opt/keycloak/bin/kcadm.sh update "clients/${CLIENT_UUID}" -r board \
-      -s "attributes.post.logout.redirect.uris=${SPA_ORIGIN}/*##https://board.bettercodelab.com/*##http://localhost:5173/*" \
-      -s 'attributes.use.refresh.tokens=true' \
-      -s 'attributes.pkce.code.challenge.method=S256' || echo "WARN: board-spa client update failed (realm import may suffice)."
-    echo "Updated board-spa client for ${SPA_ORIGIN}."
+    cat > /tmp/board-spa-client.json <<'EOF'
+{
+  "redirectUris": [
+    "https://log.bettercodelab.com/*",
+    "https://board.bettercodelab.com/*",
+    "https://book.bettercodelab.com/*",
+    "http://localhost:5173/*"
+  ],
+  "webOrigins": [
+    "https://log.bettercodelab.com",
+    "https://board.bettercodelab.com",
+    "https://book.bettercodelab.com",
+    "http://localhost:5173",
+    "+"
+  ],
+  "attributes": {
+    "post.logout.redirect.uris": "https://log.bettercodelab.com/*##https://board.bettercodelab.com/*##https://book.bettercodelab.com/*##http://localhost:5173/*",
+    "use.refresh.tokens": "true",
+    "pkce.code.challenge.method": "S256"
+  }
+}
+EOF
+    /opt/keycloak/bin/kcadm.sh update "clients/${CLIENT_UUID}" -r board -f /tmp/board-spa-client.json \
+      || echo "WARN: board-spa client update failed (realm import may suffice)."
+    echo "Updated board-spa client redirect URIs and web origins."
   fi
 
   echo "Set sslRequired=NONE for master and board realms (HTTP behind TLS proxy)."

@@ -1237,6 +1237,141 @@ a:hover {
   margin: 0 0 24px;
 }
 
+/* Onboarding checklist */
+.m-onboarding {
+  max-width: var(--m-max);
+  margin: 0 auto 32px;
+  padding: 24px;
+  border: 1px solid var(--m-border);
+  border-radius: var(--radius-md);
+  background: var(--m-surface, #fafafa);
+}
+
+.m-onboarding__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.m-onboarding__dismiss {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.m-onboarding__title {
+  font-family: var(--m-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.m-onboarding__lead {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--m-text-secondary);
+  line-height: 1.5;
+}
+
+.m-onboarding__progress {
+  margin: 0 0 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--m-green);
+  letter-spacing: 0.02em;
+}
+
+.m-onboarding__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-onboarding__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--m-border);
+}
+
+.m-onboarding__item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.m-onboarding__item--done .m-onboarding__label {
+  color: var(--m-text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: rgb(0 0 0 / 20%);
+}
+
+.m-onboarding__check {
+  flex-shrink: 0;
+  width: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--m-green);
+  text-align: center;
+}
+
+.m-onboarding__item:not(.m-onboarding__item--done) .m-onboarding__check {
+  color: var(--m-text-secondary);
+}
+
+.m-onboarding__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.m-onboarding__label {
+  margin: 0 0 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.m-onboarding__optional {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--m-text-secondary);
+}
+
+.m-onboarding__action {
+  display: inline-block;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--m-green);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.m-onboarding__action:hover {
+  opacity: 0.85;
+}
+
+.m-onboarding__hint {
+  font-size: 0.8125rem;
+  color: var(--m-text-secondary);
+}
+
+.m-onboarding__complete {
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--m-border);
+  font-size: 0.9375rem;
+  color: var(--m-text-secondary);
+  line-height: 1.5;
+}
+
 /* Article / book detail — Medium post */
 .m-article {
   max-width: var(--m-max);

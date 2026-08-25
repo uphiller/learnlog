@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
 import { api, type HistoryCalendarResponse, type HistoryEvent } from "../api";
+import { bookPath } from "../routes";
 import { LoadingState } from "../LoadingState";
 
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
@@ -182,7 +183,7 @@ export function HistoryPage() {
           <ul className="m-cal-detail__list">
             {selectedEvents.map((ev) => (
               <li key={`${ev.kind}-${ev.id}`}>
-                <Link to={`/book/${ev.book_id}`} className="m-cal-event">
+                <Link to={bookPath(`/${ev.book_id}`)} className="m-cal-event">
                   <span className={`m-cal-event__badge m-cal-event__badge--${ev.kind}`}>
                     {ev.kind === "book" ? t("history.eventBook") : t("history.eventQuote")}
                   </span>

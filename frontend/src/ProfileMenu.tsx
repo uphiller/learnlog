@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "./api";
 import { useAuth } from "./AuthContext";
+import { markOnboardingProfileDone } from "./onboarding";
 
 function parseDisplayNameError(err: unknown, fallback: string): string {
   if (!(err instanceof ApiError)) return fallback;
@@ -60,6 +61,7 @@ export function ProfileMenu({ open, onClose }: Props) {
     setError(null);
     try {
       await updateDisplayName(trimmed);
+      markOnboardingProfileDone();
       onClose();
     } catch (err) {
       setError(parseDisplayNameError(err, t("profile.saveFailed")));

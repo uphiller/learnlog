@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
+import { bookOrigin } from "../routes";
 
-const APPS = [{ id: "book", to: "/book", available: true }] as const;
+const APPS = [{ id: "book", href: `${bookOrigin()}/`, available: true }] as const;
 
 export function OfMeHomePage() {
   const { t } = useTranslation();
@@ -29,11 +29,11 @@ export function OfMeHomePage() {
         {APPS.map((app) => (
           <li key={app.id}>
             {app.available ? (
-              <Link to={app.to} className="m-hub-card">
+              <a href={app.href} className="m-hub-card">
                 <h2 className="m-hub-card__title m-serif">{t("home.booklogTitle")}</h2>
                 <p className="m-hub-card__desc">{t("home.booklogDesc")}</p>
                 <span className="m-hub-card__cta">{t("common.open")}</span>
-              </Link>
+              </a>
             ) : (
               <div className="m-hub-card m-hub-card--soon" aria-disabled>
                 <h2 className="m-hub-card__title m-serif">{t("home.booklogTitle")}</h2>

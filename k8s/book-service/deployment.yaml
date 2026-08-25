@@ -48,7 +48,7 @@ spec:
             - name: DJANGO_DEBUG
               value: "true"
             - name: DJANGO_ALLOWED_HOSTS
-              value: book-service,localhost,127.0.0.1,log.bettercodelab.com,board.bettercodelab.com
+              value: book-service,localhost,127.0.0.1,log.bettercodelab.com,board.bettercodelab.com,book.bettercodelab.com
             - name: DJANGO_SECRET_KEY
               value: dev-secret-key
             - name: POSTGRES_HOST
@@ -78,7 +78,7 @@ spec:
                   name: postgres-credentials
                   key: POSTGRES_PASSWORD
             - name: CORS_ALLOWED_ORIGINS
-              value: https://log.bettercodelab.com,https://board.bettercodelab.com
+              value: https://log.bettercodelab.com,https://board.bettercodelab.com,https://book.bettercodelab.com
             - name: KEYCLOAK_ISSUER
               value: https://auth.bettercodelab.com/realms/board
             - name: KEYCLOAK_JWKS_URL

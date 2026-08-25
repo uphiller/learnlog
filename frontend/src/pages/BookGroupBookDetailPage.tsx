@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
 import { api, type GroupMemberWriting, type GroupReading } from "../api";
+import { bookPath } from "../routes";
 
 export function BookGroupBookDetailPage() {
   const { t, i18n } = useTranslation();
@@ -35,7 +36,7 @@ export function BookGroupBookDetailPage() {
     return (
       <section className="m-group-panel">
         <p className="m-error">{error ?? t("bookGroupDetail.bookNotFound")}</p>
-        <Link to={`/book/groups/${slug}/books`} className="m-link-btn">
+        <Link to={bookPath(`/groups/${slug}/books`)} className="m-link-btn">
           {t("bookGroupDetail.backToBooks")}
         </Link>
       </section>
@@ -63,7 +64,7 @@ export function BookGroupBookDetailPage() {
             })}
           </p>
           <div className="m-article__actions">
-            <Link to={`/book/groups/${slug}/books`} className="m-link-btn">
+            <Link to={bookPath(`/groups/${slug}/books`)} className="m-link-btn">
               {t("bookGroupDetail.backToBooks")}
             </Link>
           </div>

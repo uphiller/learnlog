@@ -1,5 +1,7 @@
+import { bookOrigin, bookPath } from "./routes";
+
 export function groupInviteUrl(slug: string): string {
-  return `${window.location.origin}/book/groups/join/${encodeURIComponent(slug)}`;
+  return `${bookOrigin()}${bookPath(`/groups/join/${encodeURIComponent(slug)}`)}`;
 }
 
 export async function copyGroupInviteLink(slug: string): Promise<void> {

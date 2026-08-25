@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
 import { LoadingState } from "../LoadingState";
 import { api, type BookSearchHit } from "../api";
+import { bookPath } from "../routes";
 
 export function BookSearchPage() {
   const { t } = useTranslation();
@@ -40,7 +41,7 @@ export function BookSearchPage() {
     setError(null);
     try {
       const book = await api.createBook(hit);
-      navigate(`/book/${book.id}`);
+      navigate(bookPath(`/${book.id}`));
     } catch (e) {
       setError(e instanceof Error ? e.message : t("common.addFailed"));
     } finally {
@@ -134,7 +135,7 @@ export function BookSearchPage() {
       </div>
 
       <p className="m-back">
-        <Link to="/book">{t("bookSearch.backToLibrary")}</Link>
+        <Link to={bookPath()}>{t("bookSearch.backToLibrary")}</Link>
       </p>
     </div>
   );

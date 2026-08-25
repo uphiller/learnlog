@@ -1,11 +1,20 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "./AuthContext";
 import { BooklogTabs } from "./BooklogTabs";
 import { useGroupDetail } from "./GroupDetailContext";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
-import { ProfileMenu } from "./ProfileMenu";
+import { useProfileMenu } from "./ProfileMenuContext";
+import {
+  bookPath,
+  isBookHost,
+  isGroupsJoinPath,
+  isGroupsListPath,
+  isGroupBooksPath,
+  isLibraryPath,
+  matchGroupBoardList,
+  showBooklogTabs,
+} from "./routes";
 
 function userInitial(name: string | undefined): string {
   if (!name) return "?";
@@ -17,19 +26,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { displayName, loginWithGoogle, loginWithKakao, logout, authenticated } = useAuth();
   const { group: groupDetail } = useGroupDetail();
   const { pathname } = useLocation();
-  const [profileOpen, setProfileOpen] = useState(false);
-  const showBooklogTabs = pathname === "/book" || pathname === "/book/groups";
-  const inLibraryFlow =
-    pathname === "/book" || pathname === "/book/search" || /^\/book\/\d+$/.test(pathname);
-  const inGroupsListFlow = pathname === "/book/groups" || pathname === "/book/groups/new";
-  const inGroupsJoinFlow = pathname === "/book/groups" || pathname === "/book/groups/join";
+  const { openProfileMenu } = useProfileMenu();
   const canManageGroupBooks =
     groupDetail &&
     (groupDetail.my_role === "owner" || groupDetail.my_role === "admin");
-  const inGroupBooksFlow =
-    canManageGroupBooks && /^\/book\/groups\/[^/]+\/books\/?$/.test(pathname);
-  const groupBoardListMatch = pathname.match(/^\/book\/groups\/([^/]+)\/board\/?$/);
-  const groupBoardSlug = groupBoardListMatch?.[1];
+  const groupBoardSlug = matchGroupBoardList(pathname);
 
   return (
     <div className="layout">
@@ -42,24 +43,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <LanguageSwitcher />
             {authenticated ? (
               <>
-                {inLibraryFlow && (
-                  <Link to="/book/search" className="m-btn m-btn--write">
+                {isLibraryPath(pathname) && (
+                  <Link to={bookPath("/search")} className="m-btn m-btn--write">
                     {t("layout.addBook")}
                   </Link>
                 )}
-                {inGroupsListFlow && (
-                  <Link to="/book/groups/new" className="m-btn m-btn--write">
+                {isGroupsListPath(pathname) && (
+                  <Link to={bookPath("/groups/new")} className="m-btn m-btn--write">
                     {t("layout.createGroup")}
                   </Link>
                 )}
-                {inGroupsJoinFlow && (
-                  <Link to="/book/groups/join" className="m-btn m-btn--outline">
+                {isGroupsJoinPath(pathname) && (
+                  <Link to={bookPath("/groups/join")} className="m-btn m-btn--outline">
                     {t("layout.joinGroup")}
                   </Link>
                 )}
-                {inGroupBooksFlow && groupDetail && (
+                {canManageGroupBooks && isGroupBooksPath(pathname) && groupDetail && (
                   <Link
-                    to={`/book/groups/${groupDetail.slug}/books/add`}
+                    to={bookPath(`/groups/${groupDetail.slug}/books/add`)}
                     className="m-btn m-btn--write"
                   >
                     {t("layout.addGroupBook")}
@@ -67,7 +68,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 )}
                 {groupBoardSlug && (
                   <Link
-                    to={`/book/groups/${groupBoardSlug}/board/new`}
+                    to={bookPath(`/groups/${groupBoardSlug}/board/new`)}
                     className="m-btn m-btn--write"
                   >
                     {t("layout.writePost")}
@@ -78,35 +79,36 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   className="m-avatar m-avatar--button"
                   title={displayName || undefined}
                   aria-label={t("profile.openMenu")}
-                  onClick={() => setProfileOpen(true)}
+                  onClick={openProfileMenu}
                 >
                   {userInitial(displayName)}
                 </button>
-                <ProfileMenu open={profileOpen} onClose={() => setProfileOpen(false)} />
-                <Link
-                  to="/history"
-                  className="m-link-btn m-icon-link"
-                  aria-label={t("layout.activityLog")}
-                  title={t("layout.activityLog")}
-                >
-                  <svg
-                    className="m-icon-link__svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
+                {!isBookHost() && (
+                  <Link
+                    to="/history"
+                    className="m-link-btn m-icon-link"
+                    aria-label={t("layout.activityLog")}
+                    title={t("layout.activityLog")}
                   >
-                    <path d="M8 6h13" />
-                    <path d="M8 12h13" />
-                    <path d="M8 18h9" />
-                    <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none" />
-                    <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
-                    <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none" />
-                  </svg>
-                </Link>
+                    <svg
+                      className="m-icon-link__svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M8 6h13" />
+                      <path d="M8 12h13" />
+                      <path d="M8 18h9" />
+                      <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none" />
+                      <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                      <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none" />
+                    </svg>
+                  </Link>
+                )}
                 <button
                   type="button"
                   className="m-link-btn m-link-btn--hide-sm"
@@ -136,7 +138,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      {showBooklogTabs && <BooklogTabs />}
+      {showBooklogTabs(pathname) && <BooklogTabs />}
       <main className="m-main">{children}</main>
     </div>
   );

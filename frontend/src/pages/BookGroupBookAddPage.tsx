@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
 import { LoadingState } from "../LoadingState";
 import { api, type BookSearchHit, type ReadingGroup } from "../api";
+import { bookPath } from "../routes";
 
 function canManageBooks(group: ReadingGroup | null): boolean {
   return group?.my_role === "owner" || group?.my_role === "admin";
@@ -60,7 +61,7 @@ export function BookGroupBookAddPage() {
     setError(null);
     try {
       await api.addGroupBook(slug, hit);
-      navigate(`/book/groups/${slug}/books`);
+      navigate(bookPath(`/groups/${slug}/books`));
     } catch (e) {
       setError(e instanceof Error ? e.message : t("bookGroupDetail.addBookFailed"));
     } finally {
@@ -76,7 +77,7 @@ export function BookGroupBookAddPage() {
     return (
       <div className="m-page">
         <p className="m-error">{t("bookGroupDetail.addBookForbidden")}</p>
-        <Link to={slug ? `/book/groups/${slug}/books` : "/book/groups"} className="m-link-btn">
+        <Link to={slug ? bookPath(`/groups/${slug}/books`) : bookPath("/groups")} className="m-link-btn">
           {t("bookGroupDetail.backToBooks")}
         </Link>
       </div>
@@ -89,9 +90,9 @@ export function BookGroupBookAddPage() {
         <p className="m-breadcrumb">
           <Link to="/">{t("common.brand")}</Link>
           <span aria-hidden> › </span>
-          <Link to="/book/groups">{t("bookGroups.title")}</Link>
+          <Link to={bookPath("/groups")}>{t("bookGroups.title")}</Link>
           <span aria-hidden> › </span>
-          <Link to={`/book/groups/${slug}/books`}>{group.name}</Link>
+          <Link to={bookPath(`/groups/${slug}/books`)}>{group.name}</Link>
         </p>
         <h1 className="m-page-head__title">{t("bookGroupDetail.addBookTitle")}</h1>
         <p className="m-page-head__sub">{t("bookSearch.subtitle")}</p>
@@ -164,7 +165,7 @@ export function BookGroupBookAddPage() {
       </div>
 
       <p className="m-back">
-        <Link to={`/book/groups/${slug}/books`}>{t("bookGroupDetail.backToBooks")}</Link>
+        <Link to={bookPath(`/groups/${slug}/books`)}>{t("bookGroupDetail.backToBooks")}</Link>
       </p>
     </div>
   );
