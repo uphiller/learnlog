@@ -1,5 +1,37 @@
 # of.me Platform (DRF + Keycloak + Kong + React)
 
+## 프로젝트 업데이트 현황
+
+| 영역 | 상태 | 메모 |
+|------|------|------|
+| MSA (user / book / group) | 적용 | Django 모노리스 대신 서비스별 앱 (`services/*`) |
+| 외부 PostgreSQL (Supabase) | 적용 | DB `postgres`, 스키마 `user` / `book` / `group` / `keycloak` 분리 |
+| k3s + Traefik Ingress | 적용 | Cloudflare → Traefik → `board` 네임스페이스 워크로드 |
+| Sealed Secrets | 적용 | `postgres.env` → `k8s/scripts/seal-secrets.sh` → `k8s/secrets/sealed/` |
+| OAuth (Google / Kakao) | 적용 | `k8s/secrets/app.env` → Secret `app-secrets` → Keycloak IdP 등록 |
+| Argo CD GitOps | 구성됨 | git push 시 자동 배포용 매니페스트 (`k8s/argocd/`, `k8s/overlays/argocd/`) |
+| docker compose | 유지 | 로컬/대안 기동 경로 (`docker compose up --build`) |
+
+**k3s 시크릿·배포 (요약)**
+
+```bash
+# 1) 시크릿 원본 작성 (gitignore)
+cp k8s/secrets/app.env.example k8s/secrets/app.env
+cp k8s/secrets/postgres.env.example k8s/secrets/postgres.env
+# 값 입력 후:
+
+# 2) DB 스키마 최초 1회
+psql "$DATABASE_URL" -f postgres/init-schemas.sql
+
+# 3) Postgres/Keycloak admin SealedSecret 재생성 + 배포
+k8s/scripts/seal-secrets.sh
+kubectl -n board create secret generic app-secrets --from-env-file=k8s/secrets/app.env --dry-run=client -o yaml | kubectl apply -f -
+k8s/scripts/deploy.sh
+# OAuth/DB 변경 후: user/book/group/keycloak 롤아웃 재시작
+```
+
+서비스는 기동 시 `migrate`를 실행하며, 테이블은 각 `POSTGRES_SCHEMA`(`user` / `book` / `group`)에 있어야 합니다. `search_path`에 `public`이 포함되므로, 스키마가 비어 있으면 테이블이 `public`에 생길 수 있습니다 — 그 경우 해당 스키마로 옮기거나 마이그레이션을 스키마 기준으로 다시 맞춥니다.
+
 ## 공개 URL
 
 | 사용자 (Cloudflare HTTPS) | 서비스 |
@@ -29,12 +61,10 @@ GCP 방화벽: **TCP 80** 허용.
 
 ## Google 로그인
 
-1. `.env` (repo 루트, gitignore됨):
+1. 시크릿 입력 (gitignore):
 
-   ```bash
-   cp .env.example .env
-   # GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET 입력
-   ```
+   - **docker compose:** repo 루트 `.env` (`cp .env.example .env`)
+   - **k3s:** `k8s/secrets/app.env` (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`)
 
 2. Google Cloud OAuth **Authorized redirect URI**:
 
@@ -44,7 +74,7 @@ GCP 방화벽: **TCP 80** 허용.
 
 ## Kakao 로그인
 
-1. `.env`에 `KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET` 입력 (REST API 키 / Client Secret).
+1. `.env` 또는 `k8s/secrets/app.env`에 `KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET` 입력 (REST API 키 / Client Secret).
 
 2. [Kakao Developers](https://developers.kakao.com/) 앱 설정:
    - **카카오 로그인** → OpenID Connect **활성화**
@@ -56,7 +86,7 @@ GCP 방화벽: **TCP 80** 허용.
 
 3. Keycloak 기동 시 entrypoint가 Kakao IdP(alias `kakao`) 등록. SPA는 **Kakao 로그인** → `idpHint: kakao`.
 
-`.env` 변경 후 Keycloak 컨테이너를 재시작해야 IdP가 등록됩니다.
+`.env` / `app.env` 변경 후 Keycloak을 재시작해야 IdP가 등록됩니다.
 
 ## MSA (user / book / group)
 
@@ -64,16 +94,18 @@ GCP 방화벽: **TCP 80** 허용.
 
 | 서비스 | 경로 | API prefix | DB schema |
 |--------|------|------------|-----------|
-| user-service | `services/user-service/` | `/api/users/*` | `board.user` |
-| book-service | `services/book-service/` | `/api/books/*`, `/api/quotes/*`, `/api/history/*` | `board.book` |
-| group-service | `services/group-service/` | `/api/groups/*` | `board.group` |
-| keycloak | `keycloak/` | (auth) | `board.keycloak` |
+| user-service | `services/user-service/` | `/api/users/*` | `user` |
+| book-service | `services/book-service/` | `/api/books/*`, `/api/quotes/*`, `/api/history/*` | `book` |
+| group-service | `services/group-service/` | `/api/groups/*` | `group` |
+| keycloak | `keycloak/` | (auth) | `keycloak` |
 
-PostgreSQL 인스턴스는 `postgres` 서비스 1개, DB `board`, 서비스별 스키마로 분리합니다.
-
-기존 `pgdata` 볼륨을 쓰는 경우 Keycloak 스키마를 한 번 수동 생성하세요:
+운영 DB는 **Supabase(또는 호환 Postgres)** 한 인스턴스에 스키마로 분리합니다. 로컬 compose는 `postgres` 컨테이너를 쓸 수 있습니다. 스키마 초기화:
 
 ```sql
+-- postgres/init-schemas.sql
+CREATE SCHEMA IF NOT EXISTS "user";
+CREATE SCHEMA IF NOT EXISTS book;
+CREATE SCHEMA IF NOT EXISTS "group";
 CREATE SCHEMA IF NOT EXISTS keycloak;
 ```
 
