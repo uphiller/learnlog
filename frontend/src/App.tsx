@@ -18,8 +18,14 @@ import { BookGroupsPage } from "./pages/BookGroupsPage";
 import { BookListPage } from "./pages/BookListPage";
 import { BookSearchPage } from "./pages/BookSearchPage";
 import { HistoryPage } from "./pages/HistoryPage";
+import { FeedbackCreatePage } from "./pages/FeedbackCreatePage";
+import { FeedbackDetailPage } from "./pages/FeedbackDetailPage";
+import { FeedbackListPage } from "./pages/FeedbackListPage";
 import { OfMeHomePage } from "./pages/OfMeHomePage";
+import { AnalyticsListener } from "./AnalyticsListener";
 import { isBookHost } from "./routes";
+import { ToastHost } from "./ToastHost";
+import { ToastProvider } from "./ToastContext";
 
 function bookGroupRoutes(prefix: string) {
   const p = (sub: string) => `${prefix}${sub}`;
@@ -52,6 +58,9 @@ function AppRoutes() {
     ? [
         { path: "/", element: <BookListPage /> },
         { path: "/search", element: <BookSearchPage /> },
+        { path: "/feedback/new", element: <FeedbackCreatePage /> },
+        { path: "/feedback/:id", element: <FeedbackDetailPage /> },
+        { path: "/feedback", element: <FeedbackListPage /> },
         ...bookGroupRoutes(""),
         { path: "/:id", element: <BookDetailPage /> },
       ]
@@ -72,11 +81,15 @@ export default function App() {
     <AuthProvider>
       <GroupDetailProvider>
         <BrowserRouter>
-          <ProfileMenuProvider>
-            <Layout>
-              <AppRoutes />
-            </Layout>
-          </ProfileMenuProvider>
+          <AnalyticsListener />
+          <ToastProvider>
+            <ProfileMenuProvider>
+              <Layout>
+                <AppRoutes />
+              </Layout>
+              <ToastHost />
+            </ProfileMenuProvider>
+          </ToastProvider>
         </BrowserRouter>
       </GroupDetailProvider>
     </AuthProvider>

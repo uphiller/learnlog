@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
 import { isBookFinished, canRequestCompletionBadge } from "../bookProgress";
 import { LoadingState } from "../LoadingState";
-import { api, type Book, type BookQuote, type PeerBook, type PeerQuote } from "../api";
+import { api, formatApiError, isProfanityError, type Book, type BookQuote, type PeerBook, type PeerQuote } from "../api";
 import { bookPath } from "../routes";
+import { useToast } from "../ToastContext";
 
 export function BookDetailPage() {
   const { t, i18n } = useTranslation();
+  const { showToast } = useToast();
   const { id } = useParams();
   const bookId = Number(id);
   const navigate = useNavigate();
@@ -85,7 +87,6 @@ export function BookDetailPage() {
     e.preventDefault();
     if (!book) return;
     setSaving(true);
-    setError(null);
     try {
       await api.createQuote({
         book: book.id,
@@ -98,7 +99,12 @@ export function BookDetailPage() {
       setPage("");
       await reloadQuotes();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("common.saveFailed"));
+      if (isProfanityError(err)) {
+        setQuote("");
+        setMemo("");
+        setPage("");
+      }
+      showToast(formatApiError(err, t("common.saveFailed")), "error");
     } finally {
       setSaving(false);
     }
@@ -114,14 +120,16 @@ export function BookDetailPage() {
     e.preventDefault();
     if (!book) return;
     setCompleting(true);
-    setError(null);
     try {
       const updated = await api.completeBook(book.id, completionSentence.trim());
       setBook(updated);
       setCompletionSentence("");
       await loadPeerContent(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("common.saveFailed"));
+      if (isProfanityError(err)) {
+        setCompletionSentence("");
+      }
+      showToast(formatApiError(err, t("common.saveFailed")), "error");
     } finally {
       setCompleting(false);
     }
@@ -135,7 +143,6 @@ export function BookDetailPage() {
 
   async function addPeerBook(hit: PeerBook) {
     setAddingPeerBookId(hit.aladin_item_id);
-    setError(null);
     try {
       const created = await api.createBook({
         aladin_item_id: hit.aladin_item_id,
@@ -149,7 +156,7 @@ export function BookDetailPage() {
       });
       navigate(bookPath(`/${created.id}`));
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("common.addFailed"));
+      showToast(formatApiError(err, t("common.addFailed")), "error");
     } finally {
       setAddingPeerBookId(null);
     }
@@ -221,7 +228,6 @@ export function BookDetailPage() {
       <section className="m-compose">
 
         <h2 className="m-compose__label">{t("bookDetail.newNote")}</h2>
-        {error && <p className="m-error">{error}</p>}
         <form className="m-compose__form" onSubmit={onSubmit}>
           <textarea
             className="m-compose__quote"

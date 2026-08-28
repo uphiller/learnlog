@@ -2,16 +2,18 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
-import { api, type GroupComment, type GroupPostDetail } from "../api";
+import { api, formatApiError, isProfanityError, type GroupComment, type GroupPostDetail } from "../api";
 import { bookPath } from "../routes";
+import { useToast } from "../ToastContext";
 
 export function BookGroupPostPage() {
   const { t, i18n } = useTranslation();
+  const { showToast } = useToast();
   const { slug, postId } = useParams<{ slug: string; postId: string }>();
   const [post, setPost] = useState<GroupPostDetail | null>(null);
   const [comments, setComments] = useState<GroupComment[]>([]);
   const [commentBody, setCommentBody] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const dateLocale = i18n.language.startsWith("ko") ? "ko-KR" : "en-US";
@@ -27,9 +29,9 @@ export function BookGroupPostPage() {
       .then(([postData, commentData]) => {
         setPost(postData);
         setComments(commentData.results);
-        setError(null);
+        setLoadError(null);
       })
-      .catch((e: Error) => setError(e.message))
+      .catch((e: Error) => setLoadError(e.message))
       .finally(() => setLoading(false));
   }, [slug, postId, parsedPostId]);
 
@@ -40,13 +42,15 @@ export function BookGroupPostPage() {
     if (!trimmed) return;
 
     setSubmitting(true);
-    setError(null);
     try {
       const comment = await api.createGroupPostComment(slug, parsedPostId, trimmed);
       setComments((prev) => [...prev, comment]);
       setCommentBody("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("bookGroupDetail.commentCreateFailed"));
+      if (isProfanityError(err)) {
+        setCommentBody("");
+      }
+      showToast(formatApiError(err, t("bookGroupDetail.commentCreateFailed")), "error");
     } finally {
       setSubmitting(false);
     }
@@ -56,10 +60,10 @@ export function BookGroupPostPage() {
     return <LoadingState />;
   }
 
-  if (error && !post) {
+  if (loadError && !post) {
     return (
       <section className="m-group-panel">
-        <p className="m-error">{error}</p>
+        <p className="m-error">{loadError}</p>
         <Link to={bookPath(`/groups/${slug}/board`)} className="m-link-btn">
           {t("bookGroupDetail.backToBoard")}
         </Link>
@@ -91,7 +95,6 @@ export function BookGroupPostPage() {
         <h3 className="m-compose__label">
           {t("bookGroupDetail.commentsTitle", { count: comments.length })}
         </h3>
-        {error && <p className="m-error">{error}</p>}
         {comments.length === 0 ? (
           <p className="m-muted">{t("bookGroupDetail.commentsEmpty")}</p>
         ) : (

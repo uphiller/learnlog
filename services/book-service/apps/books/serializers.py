@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from apps.core.profanity import PROFANITY_ERROR, contains_profanity
+
 from .models import Book, BookQuote
 from .utils import get_read_page
 
@@ -35,6 +37,8 @@ class BookCompletionSerializer(serializers.Serializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("한 문장을 입력해 주세요.")
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
         return value
 
 
@@ -84,7 +88,10 @@ class BookQuoteSerializer(serializers.ModelSerializer):
     def validate_quote(self, value: str) -> str:
         if not value.strip():
             raise serializers.ValidationError("인용문을 입력해 주세요.")
-        return value.strip()
+        value = value.strip()
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
+        return value
 
 
 class BookQuoteWriteSerializer(serializers.ModelSerializer):
@@ -95,4 +102,13 @@ class BookQuoteWriteSerializer(serializers.ModelSerializer):
     def validate_quote(self, value: str) -> str:
         if not value.strip():
             raise serializers.ValidationError("인용문을 입력해 주세요.")
-        return value.strip()
+        value = value.strip()
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
+        return value
+
+    def validate_memo(self, value: str) -> str:
+        value = (value or "").strip()
+        if value and contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
+        return value

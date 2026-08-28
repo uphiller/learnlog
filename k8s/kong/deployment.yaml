@@ -46,7 +46,7 @@ spec:
             - sh
             - -c
             - |
-              for svc in user-service book-service group-service; do
+              for svc in user-service book-service group-service feedback-service; do
                 until wget -q -O- http://${svc}:8000/api/health/ >/dev/null 2>&1; do
                   echo waiting for $svc
                   sleep 3

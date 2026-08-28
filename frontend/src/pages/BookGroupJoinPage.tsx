@@ -1,35 +1,19 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ApiError, api } from "../api";
+import { ApiError, api, formatApiError } from "../api";
 import { useAuth } from "../AuthContext";
 import { bookPath } from "../routes";
-
-function parseApiErrorMessage(err: unknown, fallback: string): string {
-  if (!(err instanceof ApiError)) return fallback;
-  try {
-    const data = JSON.parse(err.message) as Record<string, string[] | string>;
-    const slugErrors = data.slug;
-    if (Array.isArray(slugErrors) && slugErrors[0]) return slugErrors[0];
-    if (typeof data.detail === "string") return data.detail;
-  } catch {
-    if (err.message) return err.message;
-  }
-  return fallback;
-}
+import { useToast } from "../ToastContext";
 
 function isAlreadyMemberError(err: unknown): boolean {
   if (!(err instanceof ApiError)) return false;
-  try {
-    const data = JSON.parse(err.message) as { detail?: string };
-    return data.detail === "이미 참여 중인 독서모임입니다.";
-  } catch {
-    return false;
-  }
+  return err.message === "이미 참여 중인 독서모임입니다.";
 }
 
 export function BookGroupJoinPage() {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { inviteSlug } = useParams<{ inviteSlug?: string }>();
   const { authenticated, loginWithGoogle, loginWithKakao, ready } = useAuth();
@@ -37,8 +21,8 @@ export function BookGroupJoinPage() {
   const isInviteLink = Boolean(slugFromUrl);
   const autoJoinStarted = useRef(false);
   const [slug, setSlug] = useState(slugFromUrl);
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [inviteFailed, setInviteFailed] = useState(false);
 
   useEffect(() => {
     if (slugFromUrl) {
@@ -49,12 +33,11 @@ export function BookGroupJoinPage() {
   async function submitJoin(slugValue: string) {
     const trimmed = slugValue.trim();
     if (!trimmed) {
-      setError(t("bookGroups.joinSlugRequired"));
+      showToast(t("bookGroups.joinSlugRequired"), "error");
       return;
     }
 
     setSubmitting(true);
-    setError(null);
     try {
       await api.requestJoinGroup(trimmed);
       navigate(bookPath("/groups"));
@@ -63,7 +46,8 @@ export function BookGroupJoinPage() {
         navigate(bookPath(`/groups/${trimmed}/books`));
         return;
       }
-      setError(parseApiErrorMessage(err, t("bookGroups.joinFailed")));
+      if (isInviteLink) setInviteFailed(true);
+      showToast(formatApiError(err, t("bookGroups.joinFailed")), "error");
     } finally {
       setSubmitting(false);
     }
@@ -104,7 +88,7 @@ export function BookGroupJoinPage() {
     );
   }
 
-  if (isInviteLink && submitting && !error) {
+  if (isInviteLink && submitting && !inviteFailed) {
     return (
       <div className="m-page">
         <header className="m-page-head">
@@ -132,7 +116,6 @@ export function BookGroupJoinPage() {
       </header>
 
       <section className="m-group-create">
-        {error && <p className="m-error">{error}</p>}
         {!isInviteLink && (
           <form className="m-group-create__form" onSubmit={(e) => void onSubmit(e)}>
             <label className="m-group-create__label" htmlFor="group-slug">
@@ -157,7 +140,7 @@ export function BookGroupJoinPage() {
             </div>
           </form>
         )}
-        {isInviteLink && error && (
+        {isInviteLink && inviteFailed && (
           <div className="m-group-create__actions">
             <Link to={bookPath("/groups")} className="m-link-btn">
               {t("bookGroups.backToGroups")}

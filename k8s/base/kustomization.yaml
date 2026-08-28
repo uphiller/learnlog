@@ -11,6 +11,7 @@ resources:
   - ../user-service/deployment.yaml
   - ../book-service/deployment.yaml
   - ../group-service/deployment.yaml
+  - ../feedback-service/deployment.yaml
   - ../kong/deployment.yaml
   - ../frontend/deployment.yaml
   - ../ingress/board-platform.yaml

@@ -1,28 +1,32 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { api } from "../api";
+import { api, formatApiError, isProfanityError } from "../api";
 import { bookPath } from "../routes";
+import { useToast } from "../ToastContext";
 
 export function BookGroupPostCreatePage() {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!slug) return;
     setSubmitting(true);
-    setError(null);
     try {
       const post = await api.createGroupPost(slug, { title: title.trim(), body: body.trim() });
       navigate(bookPath(`/groups/${slug}/board/${post.id}`));
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("bookGroupDetail.postCreateFailed"));
+      if (isProfanityError(err)) {
+        setTitle("");
+        setBody("");
+      }
+      showToast(formatApiError(err, t("bookGroupDetail.postCreateFailed")), "error");
     } finally {
       setSubmitting(false);
     }
@@ -42,7 +46,6 @@ export function BookGroupPostCreatePage() {
       </header>
 
       <section className="m-compose">
-        {error && <p className="m-error">{error}</p>}
         <form className="m-board-compose" onSubmit={(e) => void onSubmit(e)}>
           <input
             className="m-group-create__input"

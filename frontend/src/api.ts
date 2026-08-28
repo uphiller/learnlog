@@ -13,6 +13,49 @@ export class ApiError extends Error {
   }
 }
 
+/** Turn DRF / JSON error bodies into a single user-facing string. */
+export function parseApiErrorBody(raw: string, fallback = "요청에 실패했습니다."): string {
+  const text = raw?.trim();
+  if (!text) return fallback;
+  try {
+    const data = JSON.parse(text) as unknown;
+    if (typeof data === "string" && data.trim()) return data.trim();
+    if (data && typeof data === "object") {
+      const obj = data as Record<string, unknown>;
+      if (typeof obj.detail === "string" && obj.detail.trim()) return obj.detail.trim();
+      if (Array.isArray(obj.non_field_errors) && typeof obj.non_field_errors[0] === "string") {
+        return obj.non_field_errors[0];
+      }
+      for (const value of Object.values(obj)) {
+        if (typeof value === "string" && value.trim()) return value.trim();
+        if (Array.isArray(value) && typeof value[0] === "string" && value[0].trim()) {
+          return value[0].trim();
+        }
+      }
+    }
+  } catch {
+    /* plain text */
+  }
+  if (text.startsWith("{") || text.startsWith("[")) return fallback;
+  return text;
+}
+
+export function formatApiError(err: unknown, fallback: string): string {
+  if (err instanceof ApiError) {
+    return parseApiErrorBody(err.message, fallback);
+  }
+  if (err instanceof Error && err.message.trim()) return err.message;
+  return fallback;
+}
+
+/** Server-side profanity rejection message (apps.core.profanity.PROFANITY_ERROR). */
+export const PROFANITY_ERROR_MESSAGE = "부적절한 표현이 포함되어 있습니다.";
+
+export function isProfanityError(err: unknown): boolean {
+  const message = formatApiError(err, "");
+  return message.includes(PROFANITY_ERROR_MESSAGE);
+}
+
 async function authHeaders(): Promise<HeadersInit> {
   if (!keycloak.token) {
     throw new ApiError(401, "Not authenticated");
@@ -55,7 +98,7 @@ async function request<T>(path: string, init: RequestInit = {}, retried = false)
   }
   if (!res.ok) {
     const text = await res.text();
-    throw new ApiError(res.status, text || res.statusText);
+    throw new ApiError(res.status, parseApiErrorBody(text, res.statusText || "요청에 실패했습니다."));
   }
   if (res.status === 204) {
     return undefined as T;
@@ -244,6 +287,44 @@ export type GroupComment = {
   created_at: string;
 };
 
+export type FeatureRequestStatus =
+  | "open"
+  | "planned"
+  | "in_progress"
+  | "done"
+  | "declined";
+
+export type FeatureRequest = {
+  id: number;
+  title: string;
+  body: string;
+  status: FeatureRequestStatus;
+  author_name: string;
+  vote_count: number;
+  voted: boolean;
+  comment_count: number;
+  created_at: string;
+};
+
+export type FeatureRequestDetail = {
+  id: number;
+  title: string;
+  body: string;
+  status: FeatureRequestStatus;
+  author_name: string;
+  vote_count: number;
+  voted: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type FeatureRequestComment = {
+  id: number;
+  body: string;
+  author_name: string;
+  created_at: string;
+};
+
 export type UserProfile = {
   display_name: string;
   email: string;
@@ -332,6 +413,33 @@ export const api = {
     request<{ results: GroupComment[] }>(`/groups/${slug}/posts/${postId}/comments/`),
   createGroupPostComment: (slug: string, postId: number, body: string) =>
     request<GroupComment>(`/groups/${slug}/posts/${postId}/comments/`, {
+      method: "POST",
+      body: JSON.stringify({ body }),
+    }),
+
+  listFeatureRequests: (params?: { status?: string; ordering?: string; page?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.set("status", params.status);
+    if (params?.ordering) q.set("ordering", params.ordering);
+    if (params?.page) q.set("page", String(params.page));
+    const qs = q.toString();
+    return request<{ results: FeatureRequest[] } | Paginated<FeatureRequest>>(
+      `/feedback/requests/${qs ? `?${qs}` : ""}`,
+    );
+  },
+  createFeatureRequest: (data: { title: string; body: string }) =>
+    request<FeatureRequestDetail>("/feedback/requests/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getFeatureRequest: (id: number) =>
+    request<FeatureRequestDetail>(`/feedback/requests/${id}/`),
+  voteFeatureRequest: (id: number) =>
+    request<FeatureRequestDetail>(`/feedback/requests/${id}/vote/`, { method: "POST" }),
+  listFeatureRequestComments: (id: number) =>
+    request<{ results: FeatureRequestComment[] }>(`/feedback/requests/${id}/comments/`),
+  createFeatureRequestComment: (id: number, body: string) =>
+    request<FeatureRequestComment>(`/feedback/requests/${id}/comments/`, {
       method: "POST",
       body: JSON.stringify({ body }),
     }),

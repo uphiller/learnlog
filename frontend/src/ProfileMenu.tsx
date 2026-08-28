@@ -1,21 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { ApiError } from "./api";
+import { formatApiError, isProfanityError } from "./api";
 import { useAuth } from "./AuthContext";
 import { markOnboardingProfileDone } from "./onboarding";
-
-function parseDisplayNameError(err: unknown, fallback: string): string {
-  if (!(err instanceof ApiError)) return fallback;
-  try {
-    const data = JSON.parse(err.message) as Record<string, string[] | string>;
-    const nameErrors = data.display_name;
-    if (Array.isArray(nameErrors) && nameErrors[0]) return nameErrors[0];
-    if (typeof data.detail === "string") return data.detail;
-  } catch {
-    if (err.message) return err.message;
-  }
-  return fallback;
-}
+import { useToast } from "./ToastContext";
 
 type Props = {
   open: boolean;
@@ -24,16 +12,15 @@ type Props = {
 
 export function ProfileMenu({ open, onClose }: Props) {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const { displayName, updateDisplayName } = useAuth();
   const [name, setName] = useState(displayName);
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
       setName(displayName);
-      setError(null);
       window.setTimeout(() => inputRef.current?.focus(), 0);
     }
   }, [open, displayName]);
@@ -53,18 +40,20 @@ export function ProfileMenu({ open, onClose }: Props) {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError(t("profile.nameRequired"));
+      showToast(t("profile.nameRequired"), "error");
       return;
     }
 
     setSaving(true);
-    setError(null);
     try {
       await updateDisplayName(trimmed);
       markOnboardingProfileDone();
       onClose();
     } catch (err) {
-      setError(parseDisplayNameError(err, t("profile.saveFailed")));
+      if (isProfanityError(err)) {
+        setName("");
+      }
+      showToast(formatApiError(err, t("profile.saveFailed")), "error");
     } finally {
       setSaving(false);
     }
@@ -88,7 +77,6 @@ export function ProfileMenu({ open, onClose }: Props) {
           </button>
         </header>
         <form className="m-modal__form" onSubmit={(e) => void onSubmit(e)}>
-          {error && <p className="m-error">{error}</p>}
           <label className="m-group-create__label" htmlFor="profile-name">
             {t("profile.nameLabel")}
           </label>

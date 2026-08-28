@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { bookPath } from "./routes";
+import { bookPath, isBookHost } from "./routes";
 
 export function BooklogTabs() {
   const { t } = useTranslation();
@@ -14,6 +14,11 @@ export function BooklogTabs() {
         <NavLink to={bookPath("/groups")} className="m-booklog-tabs__link">
           {t("layout.readingGroupsTab")}
         </NavLink>
+        {isBookHost() && (
+          <NavLink to="/feedback" className="m-booklog-tabs__link">
+            {t("layout.feedbackTab")}
+          </NavLink>
+        )}
       </div>
     </nav>
   );

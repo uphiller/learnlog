@@ -40,6 +40,8 @@ spec:
               value: board-spa
             - name: VITE_API_BASE_URL
               value: https://log.bettercodelab.com/api
+            - name: VITE_GA_MEASUREMENT_ID
+              value: G-6BEC6RQF9M
           resources:
             requests:
               cpu: 50m

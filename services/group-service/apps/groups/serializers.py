@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from apps.core.profanity import PROFANITY_ERROR, contains_profanity
+
 from .models import Group, GroupComment, GroupMembership, GroupPost, GroupReading
 from .user_client import display_name_for_sub
 
@@ -156,12 +158,16 @@ class GroupPostWriteSerializer(serializers.Serializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("제목을 입력해 주세요.")
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
         return value
 
     def validate_body(self, value: str) -> str:
         value = value.strip()
         if not value:
             raise serializers.ValidationError("내용을 입력해 주세요.")
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
         return value
 
 
@@ -184,6 +190,8 @@ class GroupCommentWriteSerializer(serializers.Serializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("댓글을 입력해 주세요.")
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
         return value
 
 
@@ -194,4 +202,6 @@ class GroupCreateSerializer(serializers.Serializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("모임명을 입력해 주세요.")
+        if contains_profanity(value):
+            raise serializers.ValidationError(PROFANITY_ERROR)
         return value

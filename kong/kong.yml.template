@@ -119,6 +119,15 @@ services:
         strip_path: false
         plugins: *api_plugins
 
+  - name: feedback-service
+    url: http://feedback-service:8000
+    routes:
+      - name: api-feedback
+        paths:
+          - /api/feedback
+        strip_path: false
+        plugins: *api_plugins
+
   - name: user-service-health
     url: http://user-service:8000
     routes:

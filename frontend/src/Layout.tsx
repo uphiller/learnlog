@@ -8,6 +8,7 @@ import { useProfileMenu } from "./ProfileMenuContext";
 import {
   bookPath,
   isBookHost,
+  isFeedbackListPath,
   isGroupsJoinPath,
   isGroupsListPath,
   isGroupBooksPath,
@@ -37,7 +38,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="m-header">
         <div className="m-header__inner">
           <Link to="/" className="m-logo">
-            {t("common.brand")}
+            <span className="m-logo__brand">{t("common.brand")}</span>
+            <span className="m-logo__tagline">{t("common.tagline")}</span>
           </Link>
           <div className="m-header__actions">
             <LanguageSwitcher />
@@ -72,6 +74,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     className="m-btn m-btn--write"
                   >
                     {t("layout.writePost")}
+                  </Link>
+                )}
+                {isFeedbackListPath(pathname) && (
+                  <Link to="/feedback/new" className="m-btn m-btn--write">
+                    {t("layout.writeFeedback")}
                   </Link>
                 )}
                 <button

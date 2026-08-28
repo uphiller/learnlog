@@ -1,44 +1,34 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ApiError, api } from "../api";
+import { api, formatApiError, isProfanityError } from "../api";
 import { bookPath } from "../routes";
-
-function parseApiErrorMessage(err: unknown, fallback: string): string {
-  if (!(err instanceof ApiError)) return fallback;
-  try {
-    const data = JSON.parse(err.message) as Record<string, string[] | string>;
-    const nameErrors = data.name;
-    if (Array.isArray(nameErrors) && nameErrors[0]) return nameErrors[0];
-    if (typeof data.detail === "string") return data.detail;
-  } catch {
-    if (err.message) return err.message;
-  }
-  return fallback;
-}
+import { useToast } from "../ToastContext";
 
 export function BookGroupCreatePage() {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError(t("bookGroups.nameRequired"));
+      showToast(t("bookGroups.nameRequired"), "error");
       return;
     }
 
     setSubmitting(true);
-    setError(null);
     try {
       await api.createReadingGroup(trimmed);
       navigate(bookPath("/groups"));
     } catch (err) {
-      setError(parseApiErrorMessage(err, t("bookGroups.createFailed")));
+      if (isProfanityError(err)) {
+        setName("");
+      }
+      showToast(formatApiError(err, t("bookGroups.createFailed")), "error");
     } finally {
       setSubmitting(false);
     }
@@ -57,7 +47,6 @@ export function BookGroupCreatePage() {
       </header>
 
       <section className="m-group-create">
-        {error && <p className="m-error">{error}</p>}
         <form className="m-group-create__form" onSubmit={(e) => void onSubmit(e)}>
           <label className="m-group-create__label" htmlFor="group-name">
             {t("bookGroups.nameLabel")}

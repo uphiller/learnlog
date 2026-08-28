@@ -4,8 +4,8 @@
 
 | 영역 | 상태 | 메모 |
 |------|------|------|
-| MSA (user / book / group) | 적용 | Django 모노리스 대신 서비스별 앱 (`services/*`) |
-| 외부 PostgreSQL (Supabase) | 적용 | DB `postgres`, 스키마 `user` / `book` / `group` / `keycloak` 분리 |
+| MSA (user / book / group / feedback) | 적용 | Django 모노리스 대신 서비스별 앱 (`services/*`) |
+| 외부 PostgreSQL (Supabase) | 적용 | DB `postgres`, 스키마 `user` / `book` / `group` / `feedback` / `keycloak` 분리 |
 | k3s + Traefik Ingress | 적용 | Cloudflare → Traefik → `board` 네임스페이스 워크로드 |
 | Sealed Secrets | 적용 | `postgres.env` → `k8s/scripts/seal-secrets.sh` → `k8s/secrets/sealed/` |
 | OAuth (Google / Kakao) | 적용 | `k8s/secrets/app.env` → Secret `app-secrets` → Keycloak IdP 등록 |
@@ -27,10 +27,10 @@ psql "$DATABASE_URL" -f postgres/init-schemas.sql
 k8s/scripts/seal-secrets.sh
 kubectl -n board create secret generic app-secrets --from-env-file=k8s/secrets/app.env --dry-run=client -o yaml | kubectl apply -f -
 k8s/scripts/deploy.sh
-# OAuth/DB 변경 후: user/book/group/keycloak 롤아웃 재시작
+# OAuth/DB 변경 후: user/book/group/feedback/keycloak 롤아웃 재시작
 ```
 
-서비스는 기동 시 `migrate`를 실행하며, 테이블은 각 `POSTGRES_SCHEMA`(`user` / `book` / `group`)에 있어야 합니다. `search_path`에 `public`이 포함되므로, 스키마가 비어 있으면 테이블이 `public`에 생길 수 있습니다 — 그 경우 해당 스키마로 옮기거나 마이그레이션을 스키마 기준으로 다시 맞춥니다.
+서비스는 기동 시 `migrate`를 실행하며, 테이블은 각 `POSTGRES_SCHEMA`(`user` / `book` / `group` / `feedback`)에 있어야 합니다. `search_path`에 `public`이 포함되므로, 스키마가 비어 있으면 테이블이 `public`에 생길 수 있습니다 — 그 경우 해당 스키마로 옮기거나 마이그레이션을 스키마 기준으로 다시 맞춥니다.
 
 ## 공개 URL
 
@@ -38,7 +38,7 @@ k8s/scripts/deploy.sh
 |---------------------------|--------|
 | https://log.bettercodelab.com | React SPA (of.me hub) |
 | https://auth.bettercodelab.com | Keycloak |
-| https://log.bettercodelab.com/api | Kong → user / book / group services |
+| https://log.bettercodelab.com/api | Kong → user / book / group / feedback services |
 
 `board.bettercodelab.com`은 nginx에서 동일 SPA/API로 호환 라우팅(전환용).
 
@@ -50,7 +50,7 @@ k8s/scripts/deploy.sh
 브라우저 --HTTPS 443--> Cloudflare --HTTP 80--> nginx --+
   auth.bettercodelab.com  → keycloak:8080
   log.bettercodelab.com   → frontend:5173
-  log.bettercodelab.com/api → kong:8000 → user-service / book-service / group-service
+  log.bettercodelab.com/api → kong:8000 → user-service / book-service / group-service / feedback-service
 ```
 
 Cloudflare DNS: `log`, `auth` A 레코드 → 서버 IP, **프록시(주황 구름) ON**.

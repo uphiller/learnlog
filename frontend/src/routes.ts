@@ -22,7 +22,7 @@ export function bookOrigin(): string {
 
 export function showBooklogTabs(pathname: string): boolean {
   if (isBookHost()) {
-    return pathname === "/" || pathname === "/groups";
+    return pathname === "/" || pathname === "/groups" || pathname.startsWith("/feedback");
   }
   return pathname === "/book" || pathname === "/book/groups";
 }
@@ -64,4 +64,8 @@ export function matchGroupBoardList(pathname: string): string | undefined {
 
 export function groupBasePath(slug: string): string {
   return bookPath(`/groups/${slug}`);
+}
+
+export function isFeedbackListPath(pathname: string): boolean {
+  return pathname === "/feedback";
 }
