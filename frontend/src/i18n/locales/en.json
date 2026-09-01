@@ -43,12 +43,15 @@
   "profile": {
     "openMenu": "Profile settings",
     "title": "Profile",
+    "editName": "Edit display name",
+    "activityLog": "Activity log",
     "nameLabel": "Display name",
     "namePlaceholder": "Name to show",
     "nameRequired": "Please enter a name.",
     "saveFailed": "Could not update your name.",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "back": "Back"
   },
   "home": {
     "lead": "Record everyday life—a little more of me.",
@@ -78,7 +81,10 @@
     "titlePlaceholder": "What feature do you need?",
     "bodyPlaceholder": "Why it matters and how you’d use it.",
     "submit": "Submit",
+    "listButton": "List",
     "backToList": "← Back",
+    "confirmDelete": "Delete request “{{title}}”?",
+    "deleteFailed": "Could not delete the request.",
     "createFailed": "Could not create the request.",
     "vote": "Upvote",
     "unvote": "Remove vote",
@@ -212,7 +218,18 @@
     "noPeerBooks": "No recommendations yet.",
     "readerCount_one": "{{count}} reader",
     "readerCount_other": "{{count}} readers",
-    "addToLibrary": "Add to library"
+    "addToLibrary": "Add to library",
+    "copyShareLink": "Copy share link",
+    "stopSharing": "Stop sharing",
+    "shareCopied": "Share link copied.",
+    "shareStopped": "Sharing turned off.",
+    "shareFailed": "Could not update sharing."
+  },
+  "bookShare": {
+    "notFound": "Shared book not found.",
+    "noQuotes": "No saved quotes yet.",
+    "ctaLead": "Start your own reading log.",
+    "browseLibrary": "Browse booklog"
   },
   "bookSearch": {
     "title": "Find a book",
@@ -236,6 +253,7 @@
     "eventBook": "Book",
     "eventQuote": "Note",
     "backHome": "← of.me",
+    "backToLibrary": "← Back to library",
     "weekdays": {
       "sun": "Sun",
       "mon": "Mon",

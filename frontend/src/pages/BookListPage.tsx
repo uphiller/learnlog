@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
@@ -7,6 +7,17 @@ import { LoadingState } from "../LoadingState";
 import { api, type Book } from "../api";
 import { OnboardingChecklist } from "../OnboardingChecklist";
 import { bookPath } from "../routes";
+
+const SHELF_CAPACITY = 5;
+
+function chunkIntoShelves(books: Book[], size: number): Book[][] {
+  if (books.length === 0) return [];
+  const shelves: Book[][] = [];
+  for (let i = 0; i < books.length; i += size) {
+    shelves.push(books.slice(i, i + size));
+  }
+  return shelves;
+}
 
 export function BookListPage() {
   const { t } = useTranslation();
@@ -31,6 +42,8 @@ export function BookListPage() {
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [authenticated]);
+
+  const shelves = useMemo(() => chunkIntoShelves(books, SHELF_CAPACITY), [books]);
 
   return (
     <div className="m-page">
@@ -60,61 +73,71 @@ export function BookListPage() {
       {error && <p className="m-error">{error}</p>}
 
       {authenticated && !loading && books.length > 0 && (
-        <ul className="m-feed">
-          {books.map((book) => {
-            const showProgress = book.total_pages != null;
-            const finished = isBookFinished(book);
-            const progressPct =
-              showProgress && book.read_page != null
-                ? Math.min(100, Math.round((book.read_page / book.total_pages!) * 100))
-                : 0;
+        <div className="m-bookshelf" aria-label={t("bookList.title")}>
+          {shelves.map((shelf, shelfIndex) => (
+            <div key={shelfIndex} className="m-bookshelf__shelf">
+              <ul className="m-bookshelf__row">
+                {shelf.map((book) => {
+                  const finished = isBookFinished(book);
+                  const showProgress = book.total_pages != null && book.read_page != null;
+                  const progressPct = showProgress
+                    ? Math.min(100, Math.round((book.read_page! / book.total_pages!) * 100))
+                    : 0;
 
-            return (
-              <li key={book.id} className="m-feed__item">
-                <Link to={bookPath(`/${book.id}`)} className="m-feed-row">
-                  <div className="m-feed-row__body">
-                    <div className="m-feed-row__title-row">
-                      <h2 className="m-feed-row__title">{book.title}</h2>
-                      {finished && <span className="m-book-badge">{t("bookList.finished")}</span>}
-                    </div>
-                    {book.author && <p className="m-feed-row__meta">{book.author}</p>}
-                    {showProgress && (
-                      <div className="m-read-progress m-read-progress--row">
-                        <p className="m-feed-row__sub">
-                          {book.read_page != null
-                            ? t("bookList.pagesRead", {
-                                read: book.read_page,
-                                total: book.total_pages,
-                              })
-                            : t("bookList.pagesTotal", { total: book.total_pages })}
-                        </p>
-                        {book.read_page != null && (
-                          <div
-                            className="m-read-progress__bar"
+                  return (
+                    <li key={book.id} className="m-bookshelf__slot">
+                      <Link
+                        to={bookPath(`/${book.id}`)}
+                        className="m-bookshelf__book"
+                        title={book.author ? `${book.title} — ${book.author}` : book.title}
+                      >
+                        <span className="m-bookshelf__spine" aria-hidden />
+                        {book.cover_url ? (
+                          <img
+                            src={book.cover_url}
+                            alt=""
+                            className="m-bookshelf__cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="m-bookshelf__cover m-bookshelf__cover--empty" aria-hidden>
+                            <span className="m-bookshelf__cover-title">{book.title}</span>
+                          </span>
+                        )}
+                        {finished && (
+                          <span className="m-book-badge m-bookshelf__badge">
+                            {t("bookList.finished")}
+                          </span>
+                        )}
+                        {showProgress && !finished && (
+                          <span
+                            className="m-bookshelf__progress"
                             role="progressbar"
-                            aria-valuenow={book.read_page}
+                            aria-valuenow={book.read_page!}
                             aria-valuemin={0}
                             aria-valuemax={book.total_pages!}
                           >
-                            <div
-                              className="m-read-progress__fill"
+                            <span
+                              className="m-bookshelf__progress-fill"
                               style={{ width: `${progressPct}%` }}
                             />
-                          </div>
+                          </span>
                         )}
-                      </div>
-                    )}
-                  </div>
-                  {book.cover_url ? (
-                    <img src={book.cover_url} alt="" className="m-feed-row__thumb" loading="lazy" />
-                  ) : (
-                    <div className="m-feed-row__thumb m-feed-row__thumb--empty" aria-hidden />
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                        <span className="m-bookshelf__caption">
+                          <span className="m-bookshelf__caption-title">{book.title}</span>
+                          {book.author && (
+                            <span className="m-bookshelf__caption-author">{book.author}</span>
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="m-bookshelf__plank" aria-hidden />
+            </div>
+          ))}
+        </div>
       )}
 
       {!loading && authenticated && books.length === 0 && !error && (

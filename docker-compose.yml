@@ -99,6 +99,7 @@ services:
       KEYCLOAK_ISSUER: https://auth.bettercodelab.com/realms/board
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/board/protocol/openid-connect/certs
       ALADIN_TTB_KEY: ${ALADIN_TTB_KEY:-}
+      BOOK_PUBLIC_ORIGIN: https://book.bettercodelab.com
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key}
     depends_on:
       postgres:

@@ -63,8 +63,8 @@ export function FeedbackCreatePage() {
             placeholder={t("feedback.bodyPlaceholder")}
           />
           <div className="m-board-compose__actions">
-            <Link to="/feedback" className="m-link-btn">
-              {t("feedback.backToList")}
+            <Link to="/feedback" className="m-btn m-btn--outline">
+              {t("feedback.listButton")}
             </Link>
             <button type="submit" className="m-btn m-btn--write" disabled={submitting}>
               {submitting ? t("common.saving") : t("feedback.submit")}

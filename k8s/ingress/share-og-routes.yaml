@@ -1,0 +1,45 @@
+# Social crawlers receive OG HTML from book-service (via Kong) instead of the SPA shell.
+# Traefik v3 requires HeaderRegexp (not HeadersRegexp).
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: book-share-og-book-host
+  namespace: board
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: >-
+        Host(`book.bettercodelab.com`)
+        && PathRegexp(`^/share/[A-Za-z0-9_-]+/?$`)
+        && HeaderRegexp(`User-Agent`, `(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|KakaoTalk|kakaotalk-scrap|Applebot)`)
+      kind: Rule
+      priority: 10000
+      middlewares:
+        - name: share-og-rewrite-book
+          namespace: board
+      services:
+        - name: kong
+          port: 8000
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: book-share-og-log-host
+  namespace: board
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: >-
+        Host(`log.bettercodelab.com`)
+        && PathRegexp(`^/book/share/[A-Za-z0-9_-]+/?$`)
+        && HeaderRegexp(`User-Agent`, `(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|KakaoTalk|kakaotalk-scrap|Applebot)`)
+      kind: Rule
+      priority: 10000
+      middlewares:
+        - name: share-og-rewrite-log
+          namespace: board
+      services:
+        - name: kong
+          port: 8000

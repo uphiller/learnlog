@@ -112,3 +112,30 @@ class BookQuoteWriteSerializer(serializers.ModelSerializer):
         if value and contains_profanity(value):
             raise serializers.ValidationError(PROFANITY_ERROR)
         return value
+
+
+class BookPublicQuoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookQuote
+        fields = ("quote", "memo", "page", "created_at")
+
+
+class BookPublicSerializer(serializers.ModelSerializer):
+    quotes = BookPublicQuoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Book
+        fields = (
+            "title",
+            "author",
+            "cover_url",
+            "publisher",
+            "pub_date",
+            "completion_sentence",
+            "quotes",
+        )
+
+
+class BookShareStatusSerializer(serializers.Serializer):
+    is_shared = serializers.BooleanField()
+    share_url = serializers.CharField(allow_blank=True)

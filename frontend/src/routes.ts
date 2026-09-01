@@ -20,6 +20,17 @@ export function bookOrigin(): string {
   return window.location.origin;
 }
 
+export function sharePath(token: string): string {
+  return `${bookOrigin()}/share/${encodeURIComponent(token)}`;
+}
+
+export function isSharePath(pathname: string): boolean {
+  if (isBookHost()) {
+    return /^\/share\/[^/]+\/?$/.test(pathname);
+  }
+  return /^\/book\/share\/[^/]+\/?$/.test(pathname);
+}
+
 export function showBooklogTabs(pathname: string): boolean {
   if (isBookHost()) {
     return pathname === "/" || pathname === "/groups" || pathname.startsWith("/feedback");

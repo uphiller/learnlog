@@ -12,6 +12,9 @@ class Book(models.Model):
     pub_date = models.CharField(max_length=32, blank=True)
     total_pages = models.PositiveIntegerField(null=True, blank=True)
     completion_sentence = models.CharField(max_length=500, blank=True)
+    share_token = models.CharField(max_length=32, unique=True, null=True, blank=True, db_index=True)
+    is_shared = models.BooleanField(default=False)
+    shared_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

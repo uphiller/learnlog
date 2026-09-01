@@ -42,6 +42,7 @@ class FeatureRequestListSerializer(serializers.ModelSerializer):
 class FeatureRequestDetailSerializer(serializers.ModelSerializer):
     author_name = serializers.SerializerMethodField()
     voted = serializers.SerializerMethodField()
+    is_author = serializers.SerializerMethodField()
 
     class Meta:
         model = FeatureRequest
@@ -53,6 +54,7 @@ class FeatureRequestDetailSerializer(serializers.ModelSerializer):
             "author_name",
             "vote_count",
             "voted",
+            "is_author",
             "created_at",
             "updated_at",
         )
@@ -66,6 +68,10 @@ class FeatureRequestDetailSerializer(serializers.ModelSerializer):
         if voted_ids is not None:
             return obj.pk in voted_ids
         return False
+
+    def get_is_author(self, obj: FeatureRequest) -> bool:
+        viewer_sub = self.context.get("viewer_sub")
+        return bool(viewer_sub) and obj.author_keycloak_sub == viewer_sub
 
 
 class FeatureRequestWriteSerializer(serializers.Serializer):

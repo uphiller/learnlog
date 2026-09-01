@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from django.conf import settings
 from django.db.models import Count
 from django.utils import timezone
+from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -17,9 +18,11 @@ from .serializers import (
     BookListSerializer,
     BookQuoteSerializer,
     BookQuoteWriteSerializer,
+    BookShareStatusSerializer,
     PeerBookSerializer,
     PeerQuoteSerializer,
 )
+from .share_utils import build_share_url, ensure_share_token
 from .utils import PEER_BOOK_LIMIT, PEER_QUOTE_LIMIT, is_book_finished, is_reading_complete_eligible
 
 
@@ -264,6 +267,35 @@ class BookViewSet(viewsets.ModelViewSet):
                 "unlocked": True,
                 "results": PeerBookSerializer(results, many=True).data,
             }
+        )
+
+    @action(detail=True, methods=["get", "post", "delete"], url_path="share")
+    def share(self, request, pk=None):
+        book = self.get_object()
+
+        if request.method == "GET":
+            share_url = build_share_url(book.share_token) if book.is_shared and book.share_token else ""
+            return Response(
+                BookShareStatusSerializer(
+                    {"is_shared": book.is_shared, "share_url": share_url},
+                ).data
+            )
+
+        if request.method == "DELETE":
+            book.is_shared = False
+            book.save(update_fields=["is_shared"])
+            return Response(
+                BookShareStatusSerializer({"is_shared": False, "share_url": ""}).data
+            )
+
+        token = ensure_share_token(book)
+        book.is_shared = True
+        book.shared_at = timezone.now()
+        book.save(update_fields=["share_token", "is_shared", "shared_at"])
+        return Response(
+            BookShareStatusSerializer(
+                {"is_shared": True, "share_url": build_share_url(token)},
+            ).data
         )
 
 

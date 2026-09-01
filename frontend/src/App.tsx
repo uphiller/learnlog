@@ -15,6 +15,7 @@ import { BookGroupJoinPage } from "./pages/BookGroupJoinPage";
 import { BookGroupPostCreatePage } from "./pages/BookGroupPostCreatePage";
 import { BookGroupPostPage } from "./pages/BookGroupPostPage";
 import { BookGroupsPage } from "./pages/BookGroupsPage";
+import { BookSharePage } from "./pages/BookSharePage";
 import { BookListPage } from "./pages/BookListPage";
 import { BookSearchPage } from "./pages/BookSearchPage";
 import { HistoryPage } from "./pages/HistoryPage";
@@ -61,6 +62,8 @@ function AppRoutes() {
         { path: "/feedback/new", element: <FeedbackCreatePage /> },
         { path: "/feedback/:id", element: <FeedbackDetailPage /> },
         { path: "/feedback", element: <FeedbackListPage /> },
+        { path: "/share/:token", element: <BookSharePage /> },
+        { path: "/history", element: <HistoryPage /> },
         ...bookGroupRoutes(""),
         { path: "/:id", element: <BookDetailPage /> },
       ]
@@ -69,6 +72,7 @@ function AppRoutes() {
         { path: "/history", element: <HistoryPage /> },
         { path: "/book", element: <BookListPage /> },
         { path: "/book/search", element: <BookSearchPage /> },
+        { path: "/book/share/:token", element: <BookSharePage /> },
         ...bookGroupRoutes("/book"),
         { path: "/book/:id", element: <BookDetailPage /> },
       ];

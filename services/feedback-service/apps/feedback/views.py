@@ -86,7 +86,11 @@ class FeatureRequestViewSet(viewsets.ViewSet):
         profiles = user_profiles_for_subs([item.author_keycloak_sub])
         output = FeatureRequestDetailSerializer(
             item,
-            context={"user_profiles": profiles, "voted_request_ids": set()},
+            context={
+                "user_profiles": profiles,
+                "voted_request_ids": set(),
+                "viewer_sub": request.user.keycloak_sub,
+            },
         )
         return Response(output.data, status=status.HTTP_201_CREATED)
 
@@ -105,9 +109,24 @@ class FeatureRequestViewSet(viewsets.ViewSet):
             context={
                 "user_profiles": profiles,
                 "voted_request_ids": {item.pk} if voted else set(),
+                "viewer_sub": request.user.keycloak_sub,
             },
         )
         return Response(serializer.data)
+
+    def destroy(self, request, pk=None):
+        item = FeatureRequest.objects.filter(pk=pk).first()
+        if item is None:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if item.author_keycloak_sub != request.user.keycloak_sub:
+            return Response(
+                {"detail": "삭제 권한이 없습니다."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def partial_update(self, request, pk=None):
         if not _is_feedback_admin(request.user.keycloak_sub):
@@ -135,6 +154,7 @@ class FeatureRequestViewSet(viewsets.ViewSet):
             context={
                 "user_profiles": profiles,
                 "voted_request_ids": {item.pk} if voted else set(),
+                "viewer_sub": request.user.keycloak_sub,
             },
         )
         return Response(output.data)
@@ -174,6 +194,7 @@ class FeatureRequestViewSet(viewsets.ViewSet):
             context={
                 "user_profiles": profiles,
                 "voted_request_ids": {item.pk} if voted else set(),
+                "viewer_sub": keycloak_sub,
             },
         )
         return Response(output.data)

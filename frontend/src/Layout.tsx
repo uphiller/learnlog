@@ -4,10 +4,9 @@ import { useAuth } from "./AuthContext";
 import { BooklogTabs } from "./BooklogTabs";
 import { useGroupDetail } from "./GroupDetailContext";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
-import { useProfileMenu } from "./ProfileMenuContext";
+import { ProfileMenuAnchor } from "./ProfileMenuAnchor";
 import {
   bookPath,
-  isBookHost,
   isFeedbackListPath,
   isGroupsJoinPath,
   isGroupsListPath,
@@ -17,17 +16,11 @@ import {
   showBooklogTabs,
 } from "./routes";
 
-function userInitial(name: string | undefined): string {
-  if (!name) return "?";
-  return name.trim().charAt(0).toUpperCase();
-}
-
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const { displayName, loginWithGoogle, loginWithKakao, logout, authenticated } = useAuth();
   const { group: groupDetail } = useGroupDetail();
   const { pathname } = useLocation();
-  const { openProfileMenu } = useProfileMenu();
   const canManageGroupBooks =
     groupDetail &&
     (groupDetail.my_role === "owner" || groupDetail.my_role === "admin");
@@ -81,41 +74,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     {t("layout.writeFeedback")}
                   </Link>
                 )}
-                <button
-                  type="button"
-                  className="m-avatar m-avatar--button"
-                  title={displayName || undefined}
-                  aria-label={t("profile.openMenu")}
-                  onClick={openProfileMenu}
-                >
-                  {userInitial(displayName)}
-                </button>
-                {!isBookHost() && (
-                  <Link
-                    to="/history"
-                    className="m-link-btn m-icon-link"
-                    aria-label={t("layout.activityLog")}
-                    title={t("layout.activityLog")}
-                  >
-                    <svg
-                      className="m-icon-link__svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <path d="M8 6h13" />
-                      <path d="M8 12h13" />
-                      <path d="M8 18h9" />
-                      <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none" />
-                      <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
-                      <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none" />
-                    </svg>
-                  </Link>
-                )}
+                <ProfileMenuAnchor displayName={displayName} />
                 <button
                   type="button"
                   className="m-link-btn m-link-btn--hide-sm"

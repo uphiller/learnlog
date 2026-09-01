@@ -58,6 +58,26 @@ services:
   - name: book-service
     url: http://book-service:8000
     routes:
+      - name: api-books-share-public
+        paths:
+          - /api/books/share
+        strip_path: false
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - https://log.bettercodelab.com
+                - https://board.bettercodelab.com
+                - https://book.bettercodelab.com
+                - http://localhost:5173
+              methods:
+                - GET
+                - OPTIONS
+              headers:
+                - Authorization
+                - Content-Type
+              credentials: true
+              max_age: 3600
       - name: api-books
         paths:
           - /api/books

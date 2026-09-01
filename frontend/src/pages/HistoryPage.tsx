@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
 import { api, type HistoryCalendarResponse, type HistoryEvent } from "../api";
-import { bookPath } from "../routes";
+import { bookPath, isBookHost } from "../routes";
 import { LoadingState } from "../LoadingState";
 
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
@@ -204,7 +204,9 @@ export function HistoryPage() {
       </div>
 
       <p className="m-back">
-        <Link to="/">{t("history.backHome")}</Link>
+        <Link to={bookPath("/")}>
+          {isBookHost() ? t("history.backToLibrary") : t("history.backHome")}
+        </Link>
       </p>
     </div>
   );

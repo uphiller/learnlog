@@ -1,0 +1,21 @@
+# Rewrites /share/{token} → Kong public OG preview HTML (book host).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: share-og-rewrite-book
+  namespace: board
+spec:
+  replacePathRegex:
+    regex: ^/share/([A-Za-z0-9_-]+)/?$
+    replacement: /api/books/share/$1/preview/
+---
+# Rewrites /book/share/{token} → Kong public OG preview HTML (log host).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: share-og-rewrite-log
+  namespace: board
+spec:
+  replacePathRegex:
+    regex: ^/book/share/([A-Za-z0-9_-]+)/?$
+    replacement: /api/books/share/$1/preview/

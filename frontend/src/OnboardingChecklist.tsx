@@ -25,7 +25,7 @@ export function OnboardingChecklist({ books }: Props) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { authenticated } = useAuth();
-  const { openProfileMenu } = useProfileMenu();
+  const { openProfileNameEdit } = useProfileMenu();
   const [profileDone, setProfileDone] = useState(isOnboardingProfileDone);
   const [dismissed, setDismissed] = useState(isOnboardingDismissed);
   const [hasQuote, setHasQuote] = useState(false);
@@ -94,7 +94,7 @@ export function OnboardingChecklist({ books }: Props) {
       id: "profile",
       done: profileDone,
       action: profileDone ? null : (
-        <button type="button" className="m-onboarding__action" onClick={openProfileMenu}>
+        <button type="button" className="m-onboarding__action" onClick={openProfileNameEdit}>
           {t("onboarding.profileAction")}
         </button>
       ),

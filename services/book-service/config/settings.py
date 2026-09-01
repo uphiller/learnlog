@@ -79,6 +79,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ALADIN_TTB_KEY = os.environ.get("ALADIN_TTB_KEY", "")
+BOOK_PUBLIC_ORIGIN = os.environ.get("BOOK_PUBLIC_ORIGIN", "https://book.bettercodelab.com")
 
 REST_FRAMEWORK = rest_framework_config()
 

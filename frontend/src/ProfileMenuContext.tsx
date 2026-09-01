@@ -1,24 +1,46 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-import { ProfileMenu } from "./ProfileMenu";
+import { ProfileNameEditModal } from "./ProfileNameEditModal";
 
 type ProfileMenuContextValue = {
-  openProfileMenu: () => void;
+  menuOpen: boolean;
+  toggleProfileMenu: () => void;
+  closeProfileMenu: () => void;
+  openProfileNameEdit: () => void;
 };
 
 const ProfileMenuContext = createContext<ProfileMenuContextValue | null>(null);
 
 export function ProfileMenuProvider({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
-  const openProfileMenu = useCallback(() => setOpen(true), []);
-  const closeProfileMenu = useCallback(() => setOpen(false), []);
+  const closeProfileMenu = useCallback(() => setMenuOpen(false), []);
 
-  const value = useMemo(() => ({ openProfileMenu }), [openProfileMenu]);
+  const toggleProfileMenu = useCallback(() => {
+    setMenuOpen((open) => !open);
+  }, []);
+
+  const openProfileNameEdit = useCallback(() => {
+    setMenuOpen(false);
+    setEditOpen(true);
+  }, []);
+
+  const closeProfileNameEdit = useCallback(() => setEditOpen(false), []);
+
+  const value = useMemo(
+    () => ({
+      menuOpen,
+      toggleProfileMenu,
+      closeProfileMenu,
+      openProfileNameEdit,
+    }),
+    [menuOpen, toggleProfileMenu, closeProfileMenu, openProfileNameEdit],
+  );
 
   return (
     <ProfileMenuContext.Provider value={value}>
       {children}
-      <ProfileMenu open={open} onClose={closeProfileMenu} />
+      <ProfileNameEditModal open={editOpen} onClose={closeProfileNameEdit} />
     </ProfileMenuContext.Provider>
   );
 }

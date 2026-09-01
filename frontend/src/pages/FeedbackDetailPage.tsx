@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "../LoadingState";
 import {
@@ -23,6 +23,7 @@ const STATUS_KEYS: Record<FeatureRequestStatus, string> = {
 export function FeedbackDetailPage() {
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<FeatureRequestDetail | null>(null);
   const [comments, setComments] = useState<FeatureRequestComment[]>([]);
@@ -31,6 +32,7 @@ export function FeedbackDetailPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [voting, setVoting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const dateLocale = i18n.language.startsWith("ko") ? "ko-KR" : "en-US";
   const parsedId = Number(id);
 
@@ -63,6 +65,20 @@ export function FeedbackDetailPage() {
       showToast(formatApiError(err, t("feedback.voteFailed")), "error");
     } finally {
       setVoting(false);
+    }
+  }
+
+  async function onDelete() {
+    if (!item || Number.isNaN(parsedId) || deleting) return;
+    if (!window.confirm(t("feedback.confirmDelete", { title: item.title }))) return;
+
+    setDeleting(true);
+    try {
+      await api.deleteFeatureRequest(parsedId);
+      navigate("/feedback");
+    } catch (err) {
+      showToast(formatApiError(err, t("feedback.deleteFailed")), "error");
+      setDeleting(false);
     }
   }
 
@@ -133,6 +149,16 @@ export function FeedbackDetailPage() {
             {item.voted ? t("feedback.unvote") : t("feedback.vote")}
             {` · ${item.vote_count}`}
           </button>
+          {item.is_author && (
+            <button
+              type="button"
+              className="m-link-btn m-link-btn--danger"
+              onClick={() => void onDelete()}
+              disabled={deleting}
+            >
+              {t("common.delete")}
+            </button>
+          )}
         </div>
       </article>
 

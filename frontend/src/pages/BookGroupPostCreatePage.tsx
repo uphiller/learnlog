@@ -65,8 +65,8 @@ export function BookGroupPostCreatePage() {
             placeholder={t("bookGroupDetail.postBodyPlaceholder")}
           />
           <div className="m-board-compose__actions">
-            <Link to={bookPath(`/groups/${slug}/board`)} className="m-link-btn">
-              {t("bookGroupDetail.backToBoard")}
+            <Link to={bookPath(`/groups/${slug}/board`)} className="m-btn m-btn--outline">
+              {t("bookGroupDetail.boardTab")}
             </Link>
             <button type="submit" className="m-btn m-btn--write" disabled={submitting}>
               {submitting ? t("common.saving") : t("bookGroupDetail.postSubmit")}

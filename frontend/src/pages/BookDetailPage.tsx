@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../AuthContext";
 import { isBookFinished, canRequestCompletionBadge } from "../bookProgress";
 import { LoadingState } from "../LoadingState";
-import { api, formatApiError, isProfanityError, type Book, type BookQuote, type PeerBook, type PeerQuote } from "../api";
+import { api, formatApiError, isProfanityError, type Book, type BookQuote, type BookShareStatus, type PeerBook, type PeerQuote } from "../api";
 import { bookPath } from "../routes";
 import { useToast } from "../ToastContext";
 
@@ -30,6 +30,8 @@ export function BookDetailPage() {
   const [addingPeerBookId, setAddingPeerBookId] = useState<string | null>(null);
   const [completionSentence, setCompletionSentence] = useState("");
   const [completing, setCompleting] = useState(false);
+  const [shareStatus, setShareStatus] = useState<BookShareStatus | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
 
   const dateLocale = i18n.language === "ko" ? "ko-KR" : "en-US";
 
@@ -72,10 +74,11 @@ export function BookDetailPage() {
       return;
     }
     setLoading(true);
-    Promise.all([api.getBook(bookId), api.listQuotes(bookId)])
-      .then(async ([b, q]) => {
+    Promise.all([api.getBook(bookId), api.listQuotes(bookId), api.getBookShare(bookId)])
+      .then(async ([b, q, share]) => {
         setBook(b);
         setQuotes(q.results);
+        setShareStatus(share);
         setError(null);
         await loadPeerContent(b);
       })
@@ -107,6 +110,37 @@ export function BookDetailPage() {
       showToast(formatApiError(err, t("common.saveFailed")), "error");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function onCopyShareLink() {
+    if (!book) return;
+    setShareLoading(true);
+    try {
+      const status = shareStatus?.is_shared
+        ? shareStatus
+        : await api.enableBookShare(book.id);
+      setShareStatus(status);
+      await navigator.clipboard.writeText(status.share_url);
+      showToast(t("bookDetail.shareCopied"), "success");
+    } catch (err) {
+      showToast(formatApiError(err, t("bookDetail.shareFailed")), "error");
+    } finally {
+      setShareLoading(false);
+    }
+  }
+
+  async function onStopSharing() {
+    if (!book) return;
+    setShareLoading(true);
+    try {
+      const status = await api.disableBookShare(book.id);
+      setShareStatus(status);
+      showToast(t("bookDetail.shareStopped"), "success");
+    } catch (err) {
+      showToast(formatApiError(err, t("bookDetail.shareFailed")), "error");
+    } finally {
+      setShareLoading(false);
     }
   }
 
@@ -197,6 +231,24 @@ export function BookDetailPage() {
           <Link to={bookPath()} className="m-link-btn">
             {t("bookDetail.backToLibrary")}
           </Link>
+          <button
+            type="button"
+            className="m-link-btn"
+            disabled={shareLoading}
+            onClick={() => void onCopyShareLink()}
+          >
+            {shareLoading ? t("common.saving") : t("bookDetail.copyShareLink")}
+          </button>
+          {shareStatus?.is_shared && (
+            <button
+              type="button"
+              className="m-link-btn m-link-btn--danger"
+              disabled={shareLoading}
+              onClick={() => void onStopSharing()}
+            >
+              {t("bookDetail.stopSharing")}
+            </button>
+          )}
           <button type="button" className="m-link-btn m-link-btn--danger" onClick={() => void onDeleteBook()}>
             {t("bookDetail.removeFromLibrary")}
           </button>

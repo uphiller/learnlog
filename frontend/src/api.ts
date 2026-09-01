@@ -73,6 +73,18 @@ async function authHeaders(): Promise<HeadersInit> {
   };
 }
 
+async function publicRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init.headers || {}) },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new ApiError(res.status, parseApiErrorBody(text, res.statusText || "요청에 실패했습니다."));
+  }
+  return res.json() as Promise<T>;
+}
+
 async function request<T>(path: string, init: RequestInit = {}, retried = false): Promise<T> {
   const headers = await authHeaders();
   const res = await fetch(`${API_BASE}${path}`, {
@@ -176,6 +188,28 @@ export type PeerQuote = {
 export type PeerQuotesResponse = {
   unlocked: boolean;
   results: PeerQuote[];
+};
+
+export type PublicBookQuote = {
+  quote: string;
+  memo: string;
+  page: string;
+  created_at: string;
+};
+
+export type PublicBook = {
+  title: string;
+  author: string;
+  cover_url: string;
+  publisher: string;
+  pub_date: string;
+  completion_sentence: string;
+  quotes: PublicBookQuote[];
+};
+
+export type BookShareStatus = {
+  is_shared: boolean;
+  share_url: string;
 };
 
 export type PeerBook = {
@@ -314,6 +348,7 @@ export type FeatureRequestDetail = {
   author_name: string;
   vote_count: number;
   voted: boolean;
+  is_author: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -357,6 +392,12 @@ export const api = {
     request<PeerQuotesResponse>(`/books/${bookId}/peer-quotes/`),
   getPeerBooks: (bookId: number) =>
     request<PeerBooksResponse>(`/books/${bookId}/peer-books/`),
+  getBookShare: (bookId: number) => request<BookShareStatus>(`/books/${bookId}/share/`),
+  enableBookShare: (bookId: number) =>
+    request<BookShareStatus>(`/books/${bookId}/share/`, { method: "POST" }),
+  disableBookShare: (bookId: number) =>
+    request<BookShareStatus>(`/books/${bookId}/share/`, { method: "DELETE" }),
+  getSharedBook: (token: string) => publicRequest<PublicBook>(`/books/share/${token}/`),
   listQuotes: (bookId: number, page = 1) =>
     request<Paginated<BookQuote>>(`/quotes/?book=${bookId}&page=${page}`),
   createQuote: (data: { book: number; quote: string; memo?: string; page?: string }) =>
@@ -434,6 +475,8 @@ export const api = {
     }),
   getFeatureRequest: (id: number) =>
     request<FeatureRequestDetail>(`/feedback/requests/${id}/`),
+  deleteFeatureRequest: (id: number) =>
+    request<void>(`/feedback/requests/${id}/`, { method: "DELETE" }),
   voteFeatureRequest: (id: number) =>
     request<FeatureRequestDetail>(`/feedback/requests/${id}/vote/`, { method: "POST" }),
   listFeatureRequestComments: (id: number) =>

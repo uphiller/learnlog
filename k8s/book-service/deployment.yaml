@@ -89,6 +89,8 @@ spec:
                   name: app-secrets
                   key: ALADIN_TTB_KEY
                   optional: true
+            - name: BOOK_PUBLIC_ORIGIN
+              value: https://book.bettercodelab.com
             - name: INTERNAL_API_KEY
               valueFrom:
                 secretKeyRef:

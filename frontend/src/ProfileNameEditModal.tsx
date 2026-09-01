@@ -10,7 +10,7 @@ type Props = {
   onClose: () => void;
 };
 
-export function ProfileMenu({ open, onClose }: Props) {
+export function ProfileNameEditModal({ open, onClose }: Props) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { displayName, updateDisplayName } = useAuth();
@@ -65,12 +65,12 @@ export function ProfileMenu({ open, onClose }: Props) {
         className="m-modal__panel"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="profile-menu-title"
+        aria-labelledby="profile-edit-title"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="m-modal__head">
-          <h2 id="profile-menu-title" className="m-modal__title">
-            {t("profile.title")}
+          <h2 id="profile-edit-title" className="m-modal__title">
+            {t("profile.editName")}
           </h2>
           <button type="button" className="m-modal__close" onClick={onClose} aria-label={t("profile.close")}>
             ×
