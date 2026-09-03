@@ -12,7 +12,7 @@ spec:
     - match: >-
         Host(`book.bettercodelab.com`)
         && PathRegexp(`^/share/[A-Za-z0-9_-]+/?$`)
-        && HeaderRegexp(`User-Agent`, `(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|KakaoTalk|kakaotalk-scrap|Applebot)`)
+        && HeaderRegexp(`User-Agent`, `(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|kakaotalk-scrap|Applebot)`)
       kind: Rule
       priority: 10000
       middlewares:
@@ -34,7 +34,7 @@ spec:
     - match: >-
         Host(`log.bettercodelab.com`)
         && PathRegexp(`^/book/share/[A-Za-z0-9_-]+/?$`)
-        && HeaderRegexp(`User-Agent`, `(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|KakaoTalk|kakaotalk-scrap|Applebot)`)
+        && HeaderRegexp(`User-Agent`, `(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|WhatsApp|TelegramBot|kakaotalk-scrap|Applebot)`)
       kind: Rule
       priority: 10000
       middlewares:

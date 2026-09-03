@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import secrets
 from html import escape
 
@@ -10,6 +11,7 @@ from .models import Book
 
 DEFAULT_OG_IMAGE = "https://book.bettercodelab.com/og-image.png"
 OG_DESCRIPTION_FALLBACK = "of.me 북로그에서 읽은 책"
+_ALADIN_COVER_SIZE_RE = re.compile(r"/cover\d+/")
 
 
 def book_public_origin() -> str:
@@ -38,13 +40,17 @@ def share_og_image_url(token: str) -> str:
     return f"{book_public_origin()}/api/books/share/{token}/og-image/"
 
 
+def _normalize_og_text(text: str) -> str:
+    return " ".join(text.split())
+
+
 def share_description(book: Book) -> str:
-    completion = (book.completion_sentence or "").strip()
+    completion = _normalize_og_text(book.completion_sentence or "")
     if completion:
         return f"「{completion}」"
     first_quote = book.quotes.order_by("created_at").first()
     if first_quote:
-        text = first_quote.quote.strip()
+        text = _normalize_og_text(first_quote.quote)
         if len(text) > 120:
             text = text[:120] + "…"
         return text
@@ -61,9 +67,11 @@ def share_og_title(book: Book) -> str:
 
 def share_cover_image_url(book: Book) -> str:
     cover = (book.cover_url or "").strip()
-    if cover.startswith("https://"):
-        return cover
-    return DEFAULT_OG_IMAGE
+    if not cover.startswith("https://"):
+        return DEFAULT_OG_IMAGE
+    if "image.aladin.co.kr" in cover:
+        return _ALADIN_COVER_SIZE_RE.sub("/cover500/", cover)
+    return cover
 
 
 def render_share_preview_html(

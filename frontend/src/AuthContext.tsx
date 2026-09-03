@@ -11,6 +11,7 @@ import {
 import keycloak from "./keycloak";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { api } from "./api";
+import { isSharePath } from "./routes";
 
 type AuthContextValue = {
   ready: boolean;
@@ -24,6 +25,9 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+/** Mobile WebViews often hang on silent SSO; never block the UI forever. */
+const KEYCLOAK_INIT_TIMEOUT_MS = 4000;
 
 const redirectUri = () =>
   `${window.location.origin}${window.location.pathname}${window.location.search}`;
@@ -60,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const initStarted = useRef(false);
+  const publicShareEntry = useRef(isSharePath(window.location.pathname));
 
   const refreshProfile = useCallback(async () => {
     if (!keycloak.authenticated) {
@@ -78,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     keycloak.onAuthSuccess = () => {
       setAuthenticated(true);
       void refreshProfile();
+      setReady(true);
     };
     keycloak.onAuthLogout = () => {
       setAuthenticated(false);
@@ -105,24 +111,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     initStarted.current = true;
 
-    keycloak
-      .init({ onLoad: "check-sso", pkceMethod: "S256", checkLoginIframe: false })
+    let cancelled = false;
+
+    const finish = (auth: boolean) => {
+      if (cancelled) return;
+      setAuthenticated(auth);
+      if (auth) {
+        void refreshProfile();
+      } else {
+        setDisplayName("");
+      }
+      setReady(true);
+    };
+
+    const initPromise = keycloak.init({
+      onLoad: "check-sso",
+      pkceMethod: "S256",
+      checkLoginIframe: false,
+      messageReceiveTimeout: KEYCLOAK_INIT_TIMEOUT_MS,
+    });
+
+    const timer = window.setTimeout(() => {
+      finish(Boolean(keycloak.authenticated));
+    }, KEYCLOAK_INIT_TIMEOUT_MS);
+
+    void initPromise
       .then((auth) => {
-        setAuthenticated(auth);
-        if (auth) {
-          void refreshProfile();
-        }
-        setReady(true);
+        window.clearTimeout(timer);
+        finish(Boolean(auth));
       })
       .catch((err) => {
+        window.clearTimeout(timer);
         console.error("Keycloak init failed", err);
-        const auth = Boolean(keycloak.authenticated);
-        setAuthenticated(auth);
-        if (auth) {
-          void refreshProfile();
-        }
-        setReady(true);
+        finish(Boolean(keycloak.authenticated));
       });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [refreshProfile]);
 
   const loginWithGoogle = useCallback(() => loginWithIdp("google"), []);
@@ -164,7 +191,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  if (!ready) {
+  // Public share links must render immediately (Kakao / mobile WebViews).
+  if (!ready && !publicShareEntry.current) {
     return (
       <div
         className="m-auth-loading"
