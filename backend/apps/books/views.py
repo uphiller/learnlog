@@ -20,7 +20,7 @@ from .serializers import (
     PeerBookSerializer,
     PeerQuoteSerializer,
 )
-from .utils import PEER_BOOK_LIMIT, PEER_QUOTE_LIMIT, is_book_finished, is_reading_complete_eligible
+from .utils import PEER_BOOK_LIMIT, PEER_QUOTE_LIMIT, is_book_finished
 
 
 class HistoryCalendarView(APIView):
@@ -173,11 +173,6 @@ class BookViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="complete")
     def complete(self, request, pk=None):
         book = self.get_object()
-        if not is_reading_complete_eligible(book):
-            return Response(
-                {"detail": "80% 이상 읽은 뒤 완독 뱃지를 받을 수 있습니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         if book.completion_sentence.strip():
             return Response(
                 {"detail": "이미 완독 뱃지를 받았습니다."},

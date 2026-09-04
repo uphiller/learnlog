@@ -11,6 +11,8 @@ from .models import Book
 
 DEFAULT_OG_IMAGE = "https://book.bettercodelab.com/og-image.png"
 OG_DESCRIPTION_FALLBACK = "of.me 북로그에서 읽은 책"
+OG_SHARE_CTA = "나만의 독서 기록을 남겨 보세요."
+OG_DESCRIPTION_MAX_LEN = 140
 _ALADIN_COVER_SIZE_RE = re.compile(r"/cover\d+/")
 
 
@@ -47,14 +49,20 @@ def _normalize_og_text(text: str) -> str:
 def share_description(book: Book) -> str:
     completion = _normalize_og_text(book.completion_sentence or "")
     if completion:
-        return f"「{completion}」"
-    first_quote = book.quotes.order_by("created_at").first()
-    if first_quote:
-        text = _normalize_og_text(first_quote.quote)
-        if len(text) > 120:
-            text = text[:120] + "…"
-        return text
-    return OG_DESCRIPTION_FALLBACK
+        body = f"「{completion}」"
+    else:
+        first_quote = book.quotes.order_by("created_at").first()
+        if first_quote:
+            body = _normalize_og_text(first_quote.quote)
+        else:
+            body = OG_DESCRIPTION_FALLBACK
+
+    # Keep CTA intact; trim body so Kakao previews are less likely to cut mid-CTA.
+    prefix = f"{OG_SHARE_CTA} "
+    max_body = max(0, OG_DESCRIPTION_MAX_LEN - len(prefix))
+    if len(body) > max_body:
+        body = body[: max(0, max_body - 1)] + "…" if max_body > 0 else ""
+    return f"{prefix}{body}".strip()
 
 
 def share_og_title(book: Book) -> str:
